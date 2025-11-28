@@ -4,6 +4,14 @@ Google Keep에서 부족한 기능을 채워넣기 위해 만들어진 프로젝
 
 ---
 
+# 실행방법
+
+1. npm install
+2. npm run dev
+3. npm run db (localhost:portnum/notes)
+
+---
+
 # Language : React + Vite
 
 이 템플릿은 HMR 및 일부 ESL 입력 규칙을 사용하여 Vite에 반응하는 최소 설정을 제공합니다.
