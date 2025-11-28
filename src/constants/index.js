@@ -13,4 +13,3 @@ export const MENU_LABELS = {
   [MENU_ITEMS.NOTES]: '메모',
   [MENU_ITEMS.TRASH]: '휴지통',
 };
-

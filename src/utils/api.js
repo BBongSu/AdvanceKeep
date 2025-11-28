@@ -12,6 +12,17 @@ export const fetchNotes = async () => {
   return handleResponse(response);
 };
 
+export const updateNote = async (note) => {
+  const response = await fetch(`${API_URL}/${note.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(note),
+  });
+  return handleResponse(response);
+};
+
 export const createNote = async (note) => {
   const response = await fetch(API_URL, {
     method: 'POST',

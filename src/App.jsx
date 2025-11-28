@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { FiImage, FiPlus, FiX, FiLoader } from 'react-icons/fi';
+import { FiImage, FiPlus, FiX, FiLoader, FiEdit2 } from 'react-icons/fi';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
+import EditNoteModal from './components/EditNoteModal';
 import { useNotes } from './hooks/useNotes';
 import { useImageUpload } from './hooks/useImageUpload';
 import { useSearch } from './hooks/useSearch';
@@ -15,8 +16,9 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(MENU_ITEMS.NOTES);
   const [searchQuery, setSearchQuery] = useState('');
+  const [editingNote, setEditingNote] = useState(null);
 
-  const { notes, loading, addNote: addNoteAPI, removeNote } = useNotes();
+  const { notes, loading, addNote: addNoteAPI, updateNote, removeNote } = useNotes();
   const { selectedImage, handleImageSelect, clearImage } = useImageUpload();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const filteredNotes = useSearch(notes, searchQuery);
@@ -30,7 +32,7 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!title.trim() && !input.trim() && !selectedImage) return;
 
     const titleValue = title;
@@ -41,35 +43,36 @@ function App() {
     setInput('');
     clearImage();
 
-    try {
-      setAddingNote(true);
-      await addNoteAPI(titleValue, inputValue, imageValue);
-    } catch (error) {
-      alert('노트를 추가할 수 없습니다.');
+    setAddingNote(true);
+
+    addNoteAPI(titleValue, inputValue, imageValue).catch(() => {
+      alert('노트를 추가할 수 없습니다. 다시 시도해주세요.');
       setTitle(titleValue);
       setInput(inputValue);
       if (imageValue) {
-        // 이미지는 복원 불가능하므로 사용자에게 알림
+        // 이미지 복원은 불가능하므로 안내만 남깁니다.
       }
-    } finally {
-      setAddingNote(false);
-    }
-  };
+    });
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      if (title.trim() || input.trim() || selectedImage) {
-        handleSubmit(e);
-      }
-    }
+    // We don't block the UI while the network call happens.
+    setAddingNote(false);
   };
 
   const handleDeleteNote = async (id) => {
     try {
       await removeNote(id);
     } catch (error) {
-      alert('노트를 삭제할 수 없습니다.');
+      alert('노트를 삭제할 수 없습니다. 다시 시도해주세요.');
+    }
+  };
+
+  const handleUpdateNote = async (updated) => {
+    try {
+      await updateNote(updated);
+      return true;
+    } catch (error) {
+      alert('노트를 수정할 수 없습니다. 다시 시도해주세요.');
+      return false;
     }
   };
 
@@ -87,19 +90,19 @@ function App() {
 
   return (
     <div className="app">
-      <Header 
+      <Header
         toggleSidebar={toggleSidebar}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         isDarkMode={isDarkMode}
         onToggleDarkMode={toggleDarkMode}
       />
-      <Sidebar 
-        isOpen={sidebarOpen} 
+      <Sidebar
+        isOpen={sidebarOpen}
         onMenuClick={handleMenuClick}
         activeMenu={activeMenu}
       />
-      
+
       <main className="main">
         <form onSubmit={handleSubmit} className="input-form">
           <div className="input-container">
@@ -114,7 +117,6 @@ function App() {
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
               placeholder="메모를 입력하세요..."
               className="note-input"
               disabled={addingNote}
@@ -151,9 +153,9 @@ function App() {
                   style={{ display: 'none' }}
                 />
               </label>
-              <button 
-                type="submit" 
-                className="add-btn" 
+              <button
+                type="submit"
+                className="add-btn"
                 disabled={addingNote || (!title.trim() && !input.trim() && !selectedImage)}
                 aria-label="메모 추가"
               >
@@ -169,10 +171,19 @@ function App() {
 
         <div className="notes-grid">
           {filteredNotes.map((note) => (
-            <div 
-              key={note.id} 
-              className="note-card" 
+            <div
+              key={note.id}
+              className="note-card"
               style={{ backgroundColor: note.color }}
+              onClick={() => setEditingNote(note)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setEditingNote(note);
+                }
+              }}
             >
               {note.title && (
                 <h3 className="note-title">{note.title}</h3>
@@ -183,14 +194,30 @@ function App() {
                 </div>
               )}
               {note.text && <p className="note-text">{note.text}</p>}
-              <button
-                onClick={() => handleDeleteNote(note.id)}
-                className="delete-btn"
-                disabled={addingNote}
-                aria-label="메모 삭제"
-              >
-                <FiX size={18} />
-              </button>
+              <div className="note-card-actions">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingNote(note);
+                  }}
+                  className="note-action-btn"
+                  disabled={addingNote}
+                  aria-label="메모 수정"
+                >
+                  <FiEdit2 size={18} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteNote(note.id);
+                  }}
+                  className="note-action-btn"
+                  disabled={addingNote}
+                  aria-label="메모 삭제"
+                >
+                  <FiX size={18} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -200,13 +227,20 @@ function App() {
             <p>
               {hasSearchQuery
                 ? `"${searchQuery}"에 대한 검색 결과가 없습니다.`
-                : '📝 아직 메모가 없습니다. 위에 메모를 추가해보세요!'}
+                : '아직 메모가 없습니다. 여기에 메모를 추가해보세요!'}
             </p>
           </div>
+        )}
+        {editingNote && (
+          <EditNoteModal
+            note={editingNote}
+            onUpdate={handleUpdateNote}
+            onClose={() => setEditingNote(null)}
+          />
         )}
       </main>
     </div>
   );
 }
 
-export default App
+export default App;

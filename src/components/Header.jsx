@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiMenu, FiSearch, FiX, FiMoon, FiSun } from 'react-icons/fi';
+import { FiMenu, FiSearch, FiX, FiMoon, FiSun, FiFileText } from 'react-icons/fi';
 
 const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onToggleDarkMode }) => {
   const handleClearSearch = () => {
@@ -9,13 +9,16 @@ const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onTogg
   return (
     <header className="header">
       <div className="header-left">
-        <button 
-          className="icon-btn hamburger-btn" 
+        <button
+          className="icon-btn hamburger-btn"
           onClick={toggleSidebar}
           aria-label="메뉴 열기"
         >
           <FiMenu size={24} />
         </button>
+        <div className="brand-mark" aria-hidden="true">
+          <FiFileText size={20} />
+        </div>
         <h1 className="header-title">AdvanceKeep</h1>
       </div>
       <div className="header-center">
