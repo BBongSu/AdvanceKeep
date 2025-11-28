@@ -1,0 +1,32 @@
+import { API_URL } from '../constants';
+
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return response.json();
+};
+
+export const fetchNotes = async () => {
+  const response = await fetch(API_URL);
+  return handleResponse(response);
+};
+
+export const createNote = async (note) => {
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(note),
+  });
+  return handleResponse(response);
+};
+
+export const deleteNote = async (id) => {
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: 'DELETE',
+  });
+  return handleResponse(response);
+};
+
