@@ -3,6 +3,7 @@ import { useNotes } from '../hooks/useNotes';
 import { useSearch } from '../hooks/useSearch';
 import NoteCard from '../components/features/notes/NoteCard';
 import { useOutletContext } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 function Trash() {
     const { notes, restoreNote, deleteForever } = useNotes();
@@ -16,16 +17,38 @@ function Trash() {
         try {
             await restoreNote(id);
         } catch {
-            alert('노트를 복원할 수 없습니다.');
+            await Swal.fire({
+                icon: 'error',
+                title: '복원 실패',
+                text: '노트를 복원할 수 없습니다.',
+                confirmButtonColor: '#667eea'
+            });
         }
     };
 
     const handleDeleteForever = async (id) => {
-        if (window.confirm('이 메모를 영구적으로 삭제하시겠습니까?')) {
+        const result = await Swal.fire({
+            icon: 'warning',
+            title: '영구 삭제할까요?',
+            text: '삭제 후에는 되돌릴 수 없습니다.',
+            showCancelButton: true,
+            confirmButtonText: '삭제',
+            cancelButtonText: '취소',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#9e9e9e',
+            reverseButtons: true
+        });
+
+        if (result.isConfirmed) {
             try {
                 await deleteForever(id);
             } catch {
-                alert('노트를 삭제할 수 없습니다.');
+                await Swal.fire({
+                    icon: 'error',
+                    title: '삭제 실패',
+                    text: '노트를 삭제할 수 없습니다.',
+                    confirmButtonColor: '#667eea'
+                });
             }
         }
     };

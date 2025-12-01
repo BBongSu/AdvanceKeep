@@ -5,6 +5,7 @@ import NoteForm from '../components/features/notes/NoteForm';
 import NoteCard from '../components/features/notes/NoteCard';
 import EditNoteModal from '../components/features/notes/EditNoteModal';
 import { useOutletContext } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 function Home() {
     const { notes, loading, addNote, updateNote, moveToTrash } = useNotes();
@@ -22,7 +23,12 @@ function Home() {
         try {
             await addNote(noteData.title, noteData.text, noteData.image);
         } catch {
-            alert('노트를 추가할 수 없습니다. 다시 시도해주세요.');
+            await Swal.fire({
+                icon: 'error',
+                title: '추가 실패',
+                text: '노트를 추가할 수 없습니다. 다시 시도해주세요.',
+                confirmButtonColor: '#667eea'
+            });
             return false;
         } finally {
             setAddingNote(false);
@@ -33,7 +39,12 @@ function Home() {
         try {
             await moveToTrash(id);
         } catch {
-            alert('노트를 삭제할 수 없습니다. 다시 시도해주세요.');
+            await Swal.fire({
+                icon: 'error',
+                title: '삭제 실패',
+                text: '노트를 삭제할 수 없습니다. 다시 시도해주세요.',
+                confirmButtonColor: '#667eea'
+            });
         }
     };
 
@@ -42,7 +53,12 @@ function Home() {
             await updateNote(updated);
             return true;
         } catch {
-            alert('노트를 수정할 수 없습니다. 다시 시도해주세요.');
+            await Swal.fire({
+                icon: 'error',
+                title: '수정 실패',
+                text: '노트를 수정할 수 없습니다. 다시 시도해주세요.',
+                confirmButtonColor: '#667eea'
+            });
             return false;
         }
     };
@@ -71,7 +87,7 @@ function Home() {
                     <p>
                         {hasSearchQuery
                             ? `"${searchQuery}"에 대한 검색 결과가 없습니다.`
-                            : '아직 메모가 없습니다. 여기에 메모를 추가해보세요!'}
+                            : '아직 메모가 없습니다. 여기서 메모를 추가해보세요!'}
                     </p>
                 </div>
             )}

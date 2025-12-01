@@ -1,3 +1,5 @@
+@import 'sweetalert2/dist/sweetalert2.min.css';
+
 * {
   margin: 0;
   padding: 0;
@@ -818,4 +820,49 @@ input:disabled {
 
 .modal-actions .close-btn.primary:hover {
   background: #5568d3;
+}
+
+/* SweetAlert2 Overrides */
+.swal2-popup {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 12px 30px var(--shadow-hover) !important;
+  padding: 20px 24px !important;
+}
+
+.swal2-title {
+  color: var(--text-primary) !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+}
+
+.swal2-html-container {
+  color: var(--text-secondary) !important;
+  font-size: 15px !important;
+}
+
+.swal2-actions {
+  gap: 10px !important;
+}
+
+.swal2-styled.swal2-confirm {
+  background: #667eea !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35) !important;
+  border-radius: 10px !important;
+}
+
+.swal2-styled.swal2-cancel {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 10px !important;
+}
+
+.dark-mode .swal2-popup {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55) !important;
+}
+
+.dark-mode .swal2-styled.swal2-cancel {
+  color: var(--text-primary) !important;
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 import { validateImageSize, convertImageToBase64 } from '../utils/imageUtils';
 
 export const useImageUpload = (initialImage = null) => {
@@ -14,7 +15,12 @@ export const useImageUpload = (initialImage = null) => {
       const base64 = await convertImageToBase64(file);
       setSelectedImage(base64);
     } catch (error) {
-      alert(error.message);
+      await Swal.fire({
+        icon: 'error',
+        title: '이미지 업로드 실패',
+        text: error.message,
+        confirmButtonColor: '#667eea'
+      });
     } finally {
       setUploading(false);
     }
