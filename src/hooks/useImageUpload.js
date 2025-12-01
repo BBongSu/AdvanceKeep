@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { validateImageSize, convertImageToBase64 } from '../utils/imageUtils';
 
-export const useImageUpload = () => {
-  const [selectedImage, setSelectedImage] = useState(null);
+export const useImageUpload = (initialImage = null) => {
+  const [selectedImage, setSelectedImage] = useState(initialImage);
   const [uploading, setUploading] = useState(false);
 
   const handleImageSelect = async (file) => {

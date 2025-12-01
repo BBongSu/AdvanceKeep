@@ -1,17 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { FiImage, FiX } from 'react-icons/fi';
+import { useImageUpload } from '../../../hooks/useImageUpload';
 
 const EditNoteModal = ({ note, onUpdate, onClose }) => {
   const [title, setTitle] = useState(note.title || '');
   const [text, setText] = useState(note.text || '');
+  const { selectedImage, handleImageSelect, clearImage } = useImageUpload(note.image);
   const modalRef = useRef(null);
 
   const handleSave = async () => {
     try {
-      const ok = await onUpdate({ ...note, title, text });
+      const ok = await onUpdate({ ...note, title, text, image: selectedImage });
       if (ok !== false) {
         onClose();
       }
-    } catch (err) {
+    } catch {
       // onUpdate already handles its own error reporting
     }
   };
@@ -19,6 +22,13 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
       onClose();
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleImageSelect(file);
     }
   };
 
@@ -35,8 +45,24 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
       <div
         className="modal-content"
         ref={modalRef}
-        style={{ backgroundColor: `var(--note-${note.color || 'white'})` }}
+        style={{ backgroundColor: note.color || 'var(--bg-secondary)' }}
       >
+        <div className="image-preview-container">
+          {selectedImage && (
+            <div className="image-preview">
+              <img src={selectedImage} alt="Preview" />
+              <button
+                type="button"
+                onClick={clearImage}
+                className="remove-image-btn"
+                aria-label="이미지 제거"
+              >
+                <FiX size={16} />
+              </button>
+            </div>
+          )}
+        </div>
+
         <div className="note-title modal-title">
           <input
             type="text"
@@ -58,6 +84,17 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
         </div>
 
         <div className="note-actions modal-actions">
+          <div style={{ marginRight: 'auto' }}>
+            <label className="image-upload-btn" aria-label="이미지 첨부">
+              <FiImage size={20} />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{ display: 'none' }}
+              />
+            </label>
+          </div>
           <button className="close-btn" onClick={onClose}>취소</button>
           <button className="close-btn primary" onClick={handleSave}>저장</button>
         </div>

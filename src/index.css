@@ -207,6 +207,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -387,6 +388,7 @@ body {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -418,6 +420,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -582,6 +585,7 @@ input:disabled {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -653,21 +657,80 @@ input:disabled {
 }
 
 .note-action-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.1);
-  border: none;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid transparent;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s, color 0.2s;
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
 }
 
 .note-action-btn:hover {
-  background: rgba(0, 0, 0, 0.15);
+  transform: scale(1.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Edit Button */
+.btn-edit:hover {
+  background-color: rgba(33, 150, 243, 0.1);
+  color: #2196f3;
+  border-color: rgba(33, 150, 243, 0.3);
+}
+
+/* Delete Button */
+.btn-delete:hover {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+  border-color: rgba(244, 67, 54, 0.3);
+}
+
+/* Restore Button */
+.btn-restore:hover {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+/* Delete Forever Button */
+.btn-delete-forever:hover {
+  background-color: rgba(211, 47, 47, 0.1);
   color: #d32f2f;
+  border-color: rgba(211, 47, 47, 0.3);
+}
+
+/* Dark Mode Adjustments */
+.dark-mode .note-action-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+}
+
+.dark-mode .btn-edit:hover {
+  background-color: rgba(66, 165, 245, 0.2);
+  color: #42a5f5;
+  border-color: rgba(66, 165, 245, 0.5);
+}
+
+.dark-mode .btn-delete:hover {
+  background-color: rgba(239, 83, 80, 0.2);
+  color: #ef5350;
+  border-color: rgba(239, 83, 80, 0.5);
+}
+
+.dark-mode .btn-restore:hover {
+  background-color: rgba(102, 187, 106, 0.2);
+  color: #66bb6a;
+  border-color: rgba(102, 187, 106, 0.5);
+}
+
+.dark-mode .btn-delete-forever:hover {
+  background-color: rgba(229, 115, 115, 0.2);
+  color: #e57373;
+  border-color: rgba(229, 115, 115, 0.5);
 }
 
 /* Modal */
@@ -699,17 +762,14 @@ input:disabled {
     transform: translateY(12px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
   }
 }
 
-.modal-title input {
-}
 
-.modal-body textarea {
-}
 
 .modal-content .modal-input {
   width: 100%;

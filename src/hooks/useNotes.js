@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { fetchNotes, createNote, updateNote as updateNoteAPI, deleteNote as deleteNoteAPI } from '../utils/api';
+import { fetchNotes, createNote, updateNote as updateNoteAPI, deleteNote as deleteNoteAPI } from '../services/api';
 // import { DEFAULT_NOTE_COLOR } from '../constants';
 
 const LOCAL_STORAGE_KEY = 'advancekeep-notes';
@@ -100,7 +100,23 @@ export const useNotes = () => {
     }
   };
 
-  const removeNote = async (id) => {
+  const moveToTrash = async (id) => {
+    const noteToTrash = notes.find((n) => n.id === id);
+    if (!noteToTrash) return;
+
+    const updatedNote = { ...noteToTrash, inTrash: true };
+    await updateNote(updatedNote);
+  };
+
+  const restoreNote = async (id) => {
+    const noteToRestore = notes.find((n) => n.id === id);
+    if (!noteToRestore) return;
+
+    const updatedNote = { ...noteToRestore, inTrash: false };
+    await updateNote(updatedNote);
+  };
+
+  const deleteForever = async (id) => {
     setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
 
     try {
@@ -116,6 +132,12 @@ export const useNotes = () => {
       console.error('Delete note failed, local data only:', err);
     }
   };
+
+  // Alias removeNote to deleteForever for backward compatibility if needed, 
+  // but we should probably just use deleteForever explicitly.
+  // Keeping removeNote as deleteForever for now to avoid breaking other things immediately, 
+  // but I will export the new functions.
+  const removeNote = deleteForever;
 
   useEffect(() => {
     writeLocalNotes(notes);
@@ -173,6 +195,9 @@ export const useNotes = () => {
     addNote,
     updateNote,
     removeNote,
+    moveToTrash,
+    restoreNote,
+    deleteForever,
     loadNotes,
   };
 };
