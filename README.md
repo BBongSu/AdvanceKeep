@@ -1,43 +1,77 @@
 # AdvanceKeep
 
-Google Keep에서 부족한 기능을 채워넣기 위해 만들어진 프로젝트입니다.
+AdvanceKeep은 Google Keep의 기능을 참고하고 부족한 부분을 보완하여 사용자 경험을 개선한 웹 기반 메모 애플리케이션입니다. 직관적인 인터페이스를 통해 메모를 손쉽게 작성, 관리, 검색할 수 있습니다.
 
 ---
 
-# 실행방법
+## 🚀 설치 및 실행 방법
 
-1. npm install
-2. npm run dev
-3. npm run db (localhost:portnum/notes)
+이 프로젝트는 React 프론트엔드와 JSON Server 백엔드(Mock)로 구성되어 있습니다. 실행을 위해서는 두 개의 터미널이 필요합니다. (MongoDB 연동 예정)
 
----
+### 1. 프로젝트 클론 및 의존성 설치
+```bash
+npm install
+```
 
-# Language : React + Vite
+### 2. 백엔드 서버 실행 (JSON Server)
+데이터 저장을 위한 가상 API 서버를 실행합니다. (포트 3001)
+```bash
+npm run db
+```
 
-이 템플릿은 HMR 및 일부 ESL 입력 규칙을 사용하여 Vite에 반응하는 최소 설정을 제공합니다.
+### 3. 프론트엔드 개발 서버 실행
+React 애플리케이션을 실행합니다.
+```bash
+npm run dev
+```
 
-현재, 두 개의 공식 플러그인은 다음과 같습니다.
-
----
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react)
-- [Babel](https://babeljs.io/)
-- [oxc](https://oxc.rs)
-- [rolldown-vite](https://vite.dev/guide/rolldown))
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc)
-- [SWC](https://swc.rs/)
-
----
-
-## React Compiler
-
-컴파일러는 장치 및 빌드 성능 때문에 이 템플릿에 사용할 수 없습니다.
-추가하려면 이 사이트를 참조하세요. [this documentation](https://react.dev/learn/react-compiler/installation).
+브라우저에서 실행된 주소(보통 `http://localhost:5173`)로 접속하여 애플리케이션을 확인하세요.
 
 ---
 
-## ESLint configuration 확장
+## ✨ 주요 기능
 
-생산 애플리케이션을 개발 중인 경우 Typescript 규칙을 사용하도록 권장합니다.
-[TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts)
-[`typescript-eslint`](https://typescript-eslint.io)
+*   **메모 관리**: 제목과 내용으로 구성된 메모를 자유롭게 작성, 수정, 삭제할 수 있습니다.
+*   **이미지 첨부**: 메모에 여러 장의 이미지를 첨부하여 시각적으로 기록할 수 있습니다.
+*   **검색 기능**: 키워드를 통해 저장된 메모를 실시간으로 빠르게 검색할 수 있습니다.
+*   **보관함 (Archive)**: 당장 필요하지 않은 메모를 보관함으로 이동시켜 메인 화면을 번거롭지않게 유지할 수 있습니다.
+*   **휴지통 (Trash)**: 삭제한 메모를 임시 보관하며, 필요 시 복원하거나 영구 삭제할 수 있습니다.
+*   **반응형 레이아웃**: Masonry 레이아웃을 적용하여 다양한 크기의 메모 카드를 배치합니다.
+
+---
+
+## 🛠 기술 스택
+
+### Frontend
+*   **Core**: React 18, Vite
+*   **Routing**: React Router v7
+*   **Styling**: CSS Modules, React Icons
+*   **UI/UX**: SweetAlert2 (alert), Masonry Layout
+
+### Backend (Mock)
+*   **Database**: JSON Server (로컬 파일 기반 데이터베이스)
+
+---
+
+## 📂 폴더 구조
+
+```
+AdvanceKeep/
+├── public/              # 정적 파일 (이미지, 아이콘 등)
+├── server/              # 백엔드 관련 파일 (db.json 등)
+├── src/
+│   ├── assets/          # 프로젝트 내에서 사용되는 이미지 및 리소스
+│   ├── components/      # 재사용 가능한 UI 컴포넌트
+│   │   ├── common/      # 공통 컴포넌트 (버튼, 입력창 등)
+│   │   ├── features/    # 기능별 컴포넌트 (메모 카드, 폼 등)
+│   │   └── layout/      # 레이아웃 컴포넌트 (헤더, 사이드바 등)
+│   ├── hooks/           # 커스텀 React Hooks (useNotes, useSearch 등)
+│   ├── pages/           # 라우팅 페이지 (Home, Archive, Trash 등)
+│   ├── services/        # API 통신 및 비즈니스 로직 (api.js, auth.js)
+│   ├── utils/           # 유틸리티 함수
+│   ├── App.jsx          # 메인 앱 컴포넌트
+│   └── main.jsx         # 진입점 (Entry Point)
+├── index.html           # HTML 템플릿
+├── package.json         # 프로젝트 의존성 및 스크립트 설정
+└── vite.config.js       # Vite 설정 파일
+```
