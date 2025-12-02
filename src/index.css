@@ -336,6 +336,72 @@ body {
   border-color: #667eea;
 }
 
+.rich-editor {
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  transition: border-color 0.2s ease, background-color 0.3s ease;
+}
+
+.rich-editor:focus-within {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.15);
+}
+
+.rich-editor-toolbar {
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+}
+
+.rich-editor-btn {
+  min-width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 12px;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.rich-editor-btn:hover {
+  background: var(--hover-bg);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px var(--shadow);
+}
+
+.rich-editor-area {
+  min-height: 140px;
+  padding: 12px 14px;
+  outline: none;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: transparent;
+  border-radius: 0 0 8px 8px;
+  word-break: break-word;
+}
+
+.rich-editor-area:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.rich-editor-area ul,
+.rich-editor-area ol {
+  padding-left: 20px;
+  margin: 6px 0;
+}
+
+/* React Quill 기본 테마와 어울리도록 래퍼 스타일 */
+/* 리치 에디터 제거: 기존 스타일은 더 이상 사용하지 않음 */
+
 .input-hint {
   margin-top: 8px;
   display: flex;
@@ -398,15 +464,15 @@ body {
 }
 
 .notes-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  contain: layout;
+  /* 구글 킵처럼 메이슨리 컬럼 레이아웃 적용 */
+  column-width: 280px;
+  column-gap: 18px;
+  width: 100%;
 }
 
 .note-card {
   position: relative;
-  padding: 20px;
+  padding: 56px 20px 20px 20px; /* 상단 여백을 넉넉히 줘서 버튼이 제목을 가리지 않도록 조정 */
   border-radius: 12px;
   box-shadow: 0 4px 10px var(--shadow);
   transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s ease;
@@ -416,6 +482,10 @@ body {
   align-items: flex-start;
   justify-content: flex-start;
   animation: fadeInUp 0.3s ease-out;
+  break-inside: avoid; /* 컬럼 레이아웃에서 카드가 쪼개지지 않도록 */
+  page-break-inside: avoid;
+  margin-bottom: 18px;
+  width: 100%;
 }
 
 @keyframes fadeInUp {
@@ -456,7 +526,10 @@ body {
   width: 100%;
   margin: 0;
   transition: color 0.3s ease;
+  white-space: pre-wrap; /* 개행 표시 */
 }
+
+/* note-text: 기본 pre-wrap 유지 (이미 위에서 정의됨) */
 
 .delete-btn {
   position: absolute;
@@ -573,13 +646,17 @@ input:disabled {
   min-height: 0;
   margin-top: 12px;
   transition: min-height 0.2s ease-out;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
 }
 
 .image-preview {
   position: relative;
   border-radius: 8px;
   overflow: hidden;
-  max-width: 300px;
+  width: 100%;
+  height: 140px;
   animation: slideDown 0.2s ease-out;
 }
 
@@ -597,7 +674,7 @@ input:disabled {
 
 .image-preview img {
   width: 100%;
-  max-height: 150px;
+  height: 100%;
   object-fit: cover;
   display: block;
 }
@@ -639,24 +716,148 @@ input:disabled {
   margin: 0 auto;
 }
 
+.note-images-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+  max-height: 240px; /* 이미지가 많을 때 카드가 과도하게 길어지는 것을 방지 */
+  overflow-y: auto;
+  position: relative;
+  padding-right: 6px; /* 스크롤 공간 확보 */
+}
+
+.note-images-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.note-images-grid::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+
+.note-images-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.note-images-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.note-images-grid:not(.horizontal)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 6px;
+  height: 18px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.08) 100%);
+}
+
+.note-images-grid.horizontal {
+  /* 여러 장일 때 세로로 길어지지 않도록 가로 스크롤 갤러리로 전환 */
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(150px, 1fr);
+  grid-template-columns: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-height: 180px;
+  padding-bottom: 6px;
+}
+
+.note-images-grid.horizontal::-webkit-scrollbar {
+  height: 6px;
+}
+
+.note-images-grid.horizontal::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 18px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.08) 100%);
+}
+
+.note-image-multi {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  height: 140px;
+}
+
+.note-image-multi img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .note-card .note-text {
   margin-top: 8px;
   text-align: left;
 }
 
+.note-images-grid.collapsed {
+  max-height: 240px;
+  overflow: hidden;
+  mask-image: linear-gradient(180deg, #000 65%, rgba(0, 0, 0, 0));
+  -webkit-mask-image: linear-gradient(180deg, #000 65%, rgba(0, 0, 0, 0));
+}
+
+.note-text.collapsed-text {
+  max-height: 160px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 7;
+  -webkit-box-orient: vertical;
+  mask-image: linear-gradient(180deg, #000 70%, rgba(0, 0, 0, 0));
+  -webkit-mask-image: linear-gradient(180deg, #000 70%, rgba(0, 0, 0, 0));
+}
+
+.note-expand-btn {
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 12px;
+  align-self: flex-end;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.note-expand-btn:hover {
+  background: var(--hover-bg);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px var(--shadow);
+}
+
 /* Note card action buttons */
 .note-card-actions {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 12px;
+  right: 12px;
   display: flex;
   gap: 8px;
+  padding: 4px 6px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 2;
 }
 
 .note-card:hover .note-card-actions {
   opacity: 1;
+  transform: translateY(-2px);
 }
 
 .note-action-btn {
@@ -722,6 +923,11 @@ input:disabled {
 
 
 /* Dark Mode Adjustments */
+.dark-mode .note-card-actions {
+  background: rgba(48, 49, 52, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
 .dark-mode .note-action-btn {
   background: rgba(255, 255, 255, 0.1);
   color: var(--text-secondary);
@@ -785,6 +991,8 @@ input:disabled {
   position: relative;
   animation: slideUp 0.2s ease;
   border: 1px solid var(--border-color);
+  max-height: 90vh; /* 모달이 뷰포트 밖으로 커지지 않도록 높이 제한 */
+  overflow-y: auto;
 }
 
 @keyframes slideUp {
@@ -817,6 +1025,13 @@ input:disabled {
   border-radius: 8px;
   padding: 12px 16px;
   border: 2px solid var(--border-color);
+}
+
+.modal-textarea {
+  max-height: 220px; /* 과도한 개행으로 모달이 길어지는 것 방지 */
+  overflow-y: auto;
+  resize: vertical;
+  line-height: 1.5;
 }
 
 .modal-actions {
@@ -901,12 +1116,16 @@ input:disabled {
     padding: 16px;
   }
 
-  .notes-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  }
-
   .sidebar {
     width: 240px;
+  }
+}
+
+/* Masonry 컬럼 폭/간격을 화면 크기에 맞춰 조정 */
+@media (max-width: 1024px) {
+  .notes-grid {
+    column-width: 240px;
+    column-gap: 16px;
   }
 }
 
@@ -958,6 +1177,13 @@ input:disabled {
   }
 }
 
+@media (max-width: 768px) {
+  .notes-grid {
+    column-width: 220px;
+    column-gap: 14px;
+  }
+}
+
 @media (max-width: 520px) {
   .header {
     padding: 10px;
@@ -965,11 +1191,6 @@ input:disabled {
 
   .search-bar {
     padding: 8px 12px;
-  }
-
-  .notes-grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 14px;
   }
 
   .note-card {
@@ -986,6 +1207,13 @@ input:disabled {
 
   .input-form {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 520px) {
+  .notes-grid {
+    column-width: 180px;
+    column-gap: 12px;
   }
 }
 

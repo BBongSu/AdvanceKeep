@@ -1,21 +1,67 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FiImage, FiX } from 'react-icons/fi';
 import { useImageUpload } from '../../../hooks/useImageUpload';
 
 const EditNoteModal = ({ note, onUpdate, onClose }) => {
   const [title, setTitle] = useState(note.title || '');
   const [text, setText] = useState(note.text || '');
-  const { selectedImage, handleImageSelect, clearImage } = useImageUpload(note.image);
-  const modalRef = useRef(null);
+  const { selectedImages, handleImageSelect, clearImages, removeImage } = useImageUpload(
+    Array.isArray(note.images) ? note.images : note.image ? [note.image] : []
+  );
+
+  // 선택 영역을 토큰으로 감싸기
+  const wrapSelection = (prefix, suffix = prefix) => {
+    const el = textareaRef.current;
+    if (!el) return;
+    const { selectionStart, selectionEnd, value } = el;
+    const before = value.slice(0, selectionStart);
+    const selected = value.slice(selectionStart, selectionEnd);
+    const after = value.slice(selectionEnd);
+    const next = `${before}${prefix}${selected || ''}${suffix}${after}`;
+    setText(next);
+    const cursor = selectionEnd + prefix.length + suffix.length;
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(cursor, cursor);
+    });
+  };
+
+  const applyBullet = (ordered = false) => {
+    const el = textareaRef.current;
+    if (!el) return;
+    const { selectionStart, selectionEnd, value } = el;
+    const lines = value.split('\n');
+    let acc = 0;
+    const newLines = lines.map((line) => {
+      const lineStart = acc;
+      const lineEnd = acc + line.length;
+      acc += line.length + 1;
+      const intersect = !(lineEnd < selectionStart || lineStart > selectionEnd);
+      if (!intersect) return line;
+      return ordered ? `1. ${line}` : `- ${line}`;
+    });
+    const next = newLines.join('\n');
+    setText(next);
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(selectionStart, selectionEnd);
+    });
+  };
 
   const handleSave = async () => {
     try {
-      const ok = await onUpdate({ ...note, title, text, image: selectedImage });
+      const ok = await onUpdate({
+        ...note,
+        title,
+        text,
+        images: selectedImages,
+        image: selectedImages?.[0] || null, // 기존 필드 호환
+      });
       if (ok !== false) {
         onClose();
       }
     } catch {
-      // onUpdate already handles its own error reporting
+      // 상위 onUpdate에서 처리하도록 조용히 무시
     }
   };
 
@@ -26,9 +72,9 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      handleImageSelect(file);
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleImageSelect(Array.from(files));
     }
   };
 
@@ -44,23 +90,22 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div
         className="modal-content"
-        ref={modalRef}
         style={{ backgroundColor: note.color || 'var(--bg-secondary)' }}
       >
         <div className="image-preview-container">
-          {selectedImage && (
-            <div className="image-preview">
-              <img src={selectedImage} alt="Preview" />
+          {selectedImages.map((img, idx) => (
+            <div className="image-preview" key={`edit-preview-${idx}`}>
+              <img src={img} alt="Preview" />
               <button
                 type="button"
-                onClick={clearImage}
+                onClick={() => removeImage(idx)}
                 className="remove-image-btn"
-                aria-label="이미지 제거"
+                aria-label="이미지 삭제"
               >
                 <FiX size={16} />
               </button>
             </div>
-          )}
+          ))}
         </div>
 
         <div className="note-title modal-title">
@@ -75,11 +120,11 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
 
         <div className="note-content modal-body">
           <textarea
-            placeholder="메모를 입력하세요..."
+            className="note-input modal-input modal-textarea"
+            placeholder="메모를 입력해주세요."
             value={text}
             onChange={(e) => setText(e.target.value)}
-            rows={Math.max(3, text.split('\n').length)}
-            className="note-input modal-input"
+            rows={6}
           />
         </div>
 
@@ -90,6 +135,7 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
               <input
                 type="file"
                 accept="image/*"
+                multiple
                 onChange={handleImageChange}
                 style={{ display: 'none' }}
               />

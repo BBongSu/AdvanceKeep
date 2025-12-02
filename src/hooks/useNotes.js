@@ -24,7 +24,23 @@ const readLocalNotes = (userId) => {
  */
 const writeLocalNotes = (userId, notes) => {
   if (typeof localStorage === 'undefined') return;
-  localStorage.setItem(getStorageKey(userId), JSON.stringify(notes));
+
+  // 이미지(base64)는 용량이 커서 로컬스토리지 한도를 초과하므로 텍스트 메타데이터만 보관
+  const lightweight = notes.map((note) => {
+    const {
+      images, // 제거
+      image,  // 제거
+      ...rest
+    } = note;
+    return rest;
+  });
+
+  try {
+    localStorage.setItem(getStorageKey(userId), JSON.stringify(lightweight));
+  } catch (err) {
+    // 용량 초과 시에는 로컬 백업을 생략하고 로그만 남김
+    console.warn('Local backup skipped (quota exceeded):', err);
+  }
 };
 
 /**
@@ -80,9 +96,9 @@ export const useNotes = () => {
    * 낙관적 업데이트: UI에 즉시 반영 후 서버 동기화
    * @param {string} title - 메모 제목
    * @param {string} text - 메모 내용
-   * @param {string} image - 이미지 URL
+   * @param {Array<string>} images - 이미지 배열(base64)
    */
-  const addNote = async (title, text, image) => {
+  const addNote = async (title, text, images = []) => {
     if (!user) {
       throw new Error('로그인이 필요합니다.');
     }
@@ -91,8 +107,9 @@ export const useNotes = () => {
     const optimisticNote = {
       id: uuidv4(),
       title: title.trim() || null,
-      text: text.trim() || null,
-      image,
+      text: text ? text.trim() : null, // 리치 텍스트(HTML)도 그대로 저장
+      images,
+      image: images?.[0] || null, // 기존 필드와 호환 유지
       createdAt: new Date().toISOString(),
       userId: user.id,
     };

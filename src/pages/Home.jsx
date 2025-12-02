@@ -26,12 +26,12 @@ function Home() {
 
     /**
      * 새 메모 추가 핸들러
-     * @param {Object} noteData - 메모 데이터 (title, text, image)
+     * @param {Object} noteData - 메모 데이터 (title, text, images)
      */
     const handleAddNote = async (noteData) => {
         setAddingNote(true);
         try {
-            await addNote(noteData.title, noteData.text, noteData.image);
+            await addNote(noteData.title, noteData.text, noteData.images);
         } catch {
             await showErrorAlert('추가 실패', '노트를 추가할 수 없습니다. 다시 시도해주세요.');
             return false;

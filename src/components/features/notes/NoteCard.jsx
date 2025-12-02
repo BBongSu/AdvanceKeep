@@ -1,20 +1,24 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { FiEdit2, FiX, FiRefreshCw, FiTrash2, FiArchive } from 'react-icons/fi';
 
 /**
  * 메모 카드 컴포넌트
- * 개별 메모를 표시하고 수정, 삭제, 보관 등의 액션을 제공
- * 
- * @param {Object} note - 메모 객체
- * @param {Function} onEdit - 메모 수정 핸들러
- * @param {Function} onDelete - 메모 삭제 핸들러
- * @param {Function} onRestore - 메모 복원 핸들러 (휴지통에서만 사용)
- * @param {Function} onArchive - 메모 보관/보관 해제 핸들러
- * @param {boolean} addingNote - 메모 추가 중 여부 (버튼 비활성화용)
- * @param {boolean} isTrash - 휴지통 페이지 여부
- * @param {boolean} isArchived - 보관된 메모 여부
+ * 개별 메모를 표시하고 수정/삭제/보관/복원 등을 제공
  */
 function NoteCard({ note, onEdit, onDelete, onRestore, onArchive, addingNote, isTrash, isArchived }) {
+    // 단일 image 필드를 가진 기존 데이터도 images 배열로 호환
+    const images = Array.isArray(note.images)
+        ? note.images
+        : note.image
+            ? [note.image]
+            : [];
+    const [expanded, setExpanded] = useState(false);
+
+    const isLongText = useMemo(() => (note.text ? note.text.length > 200 : false), [note.text]);
+    const hasManyImages = images.length > 2;
+    const shouldCollapse = !expanded && (isLongText || hasManyImages);
+    const useHorizontalGallery = images.length > 2;
+
     return (
         <div
             className="note-card"
@@ -23,32 +27,51 @@ function NoteCard({ note, onEdit, onDelete, onRestore, onArchive, addingNote, is
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
-                // 키보드 접근성: Enter 또는 Space 키로 메모 수정
                 if (!isTrash && (e.key === 'Enter' || e.key === ' ')) {
                     e.preventDefault();
                     onEdit(note);
                 }
             }}
         >
-            {/* 메모 제목 */}
             {note.title && (
                 <h3 className="note-title">{note.title}</h3>
             )}
 
-            {/* 메모 이미지 */}
-            {note.image && (
-                <div className="note-image">
-                    <img src={note.image} alt="Note attachment" />
+            {images.length > 0 && (
+                <div
+                    className={`note-images-grid ${shouldCollapse && hasManyImages ? 'collapsed' : ''} ${useHorizontalGallery ? 'horizontal' : ''
+                        }`}
+                >
+                    {images.map((img, idx) => (
+                        <div className="note-image-multi" key={`${note.id}-img-${idx}`}>
+                            <img src={img} alt="Note attachment" />
+                        </div>
+                    ))}
                 </div>
             )}
 
-            {/* 메모 내용 */}
-            {note.text && <p className="note-text">{note.text}</p>}
+            {note.text && (
+                <p className={`note-text ${shouldCollapse && isLongText ? 'collapsed-text' : ''}`}>
+                    {note.text}
+                </p>
+            )}
 
-            {/* 액션 버튼들 */}
+            {(isLongText || hasManyImages) && (
+                <button
+                    type="button"
+                    className="note-expand-btn"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setExpanded((prev) => !prev);
+                    }}
+                    aria-label={expanded ? '내용 접기' : '내용 더보기'}
+                >
+                    {expanded ? '접기' : '더보기'}
+                </button>
+            )}
+
             <div className="note-card-actions">
                 {isTrash ? (
-                    // 휴지통 페이지: 복원 및 영구 삭제 버튼
                     <>
                         <button
                             onClick={(e) => {
@@ -74,7 +97,6 @@ function NoteCard({ note, onEdit, onDelete, onRestore, onArchive, addingNote, is
                         </button>
                     </>
                 ) : (
-                    // 일반 페이지: 수정, 보관, 삭제 버튼
                     <>
                         <button
                             onClick={(e) => {
@@ -94,8 +116,8 @@ function NoteCard({ note, onEdit, onDelete, onRestore, onArchive, addingNote, is
                             }}
                             className="note-action-btn btn-archive"
                             disabled={addingNote}
-                            title={isArchived ? "보관 해제" : "보관"}
-                            aria-label={isArchived ? "보관 해제" : "보관"}
+                            title={isArchived ? '보관 해제' : '보관'}
+                            aria-label={isArchived ? '보관 해제' : '보관'}
                         >
                             <FiArchive size={18} />
                         </button>
