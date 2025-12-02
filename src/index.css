@@ -243,6 +243,7 @@ body {
   padding: 12px 24px;
   cursor: pointer;
   color: var(--text-primary);
+  text-decoration: none;
   transition: background-color 0.2s;
   border-radius: 0 25px 25px 0;
   margin-right: 8px;
@@ -705,6 +706,21 @@ input:disabled {
   border-color: rgba(211, 47, 47, 0.3);
 }
 
+/* Archive Button */
+.btn-archive:hover {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #ff9800;
+  border-color: rgba(255, 152, 0, 0.3);
+}
+
+/* Unarchive Button */
+.btn-unarchive:hover {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #ff9800;
+  border-color: rgba(255, 152, 0, 0.3);
+}
+
+
 /* Dark Mode Adjustments */
 .dark-mode .note-action-btn {
   background: rgba(255, 255, 255, 0.1);
@@ -733,6 +749,18 @@ input:disabled {
   background-color: rgba(229, 115, 115, 0.2);
   color: #e57373;
   border-color: rgba(229, 115, 115, 0.5);
+}
+
+.dark-mode .btn-archive:hover {
+  background-color: rgba(255, 183, 77, 0.2);
+  color: #ffb74d;
+  border-color: rgba(255, 183, 77, 0.5);
+}
+
+.dark-mode .btn-unarchive:hover {
+  background-color: rgba(255, 183, 77, 0.2);
+  color: #ffb74d;
+  border-color: rgba(255, 183, 77, 0.5);
 }
 
 /* Modal */

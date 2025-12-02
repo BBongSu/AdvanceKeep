@@ -1,33 +1,50 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { fetchNotes, createNote, updateNote as updateNoteAPI, deleteNote as deleteNoteAPI } from '../services/api';
-// import { DEFAULT_NOTE_COLOR } from '../constants';
 
+// 로컬 스토리지 키
 const LOCAL_STORAGE_KEY = 'advancekeep-notes';
 
+/**
+ * 로컬 스토리지에서 메모 읽기
+ * @returns {Array} 저장된 메모 배열
+ */
 const readLocalNotes = () => {
   if (typeof localStorage === 'undefined') return [];
   const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
   return stored ? JSON.parse(stored) : [];
 };
 
+/**
+ * 로컬 스토리지에 메모 저장
+ * @param {Array} notes - 저장할 메모 배열
+ */
 const writeLocalNotes = (notes) => {
   if (typeof localStorage === 'undefined') return;
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(notes));
 };
 
+/**
+ * 메모 관리를 위한 커스텀 훅
+ * 서버 동기화, 로컬 스토리지 백업, 낙관적 업데이트 기능 제공
+ */
 export const useNotes = () => {
-  const [notes, setNotes] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [pendingActions, setPendingActions] = useState([]);
-  const [syncing, setSyncing] = useState(false);
-  const [lastSyncError, setLastSyncError] = useState(null);
+  // 상태 관리
+  const [notes, setNotes] = useState([]);                    // 메모 목록
+  const [loading, setLoading] = useState(false);             // 로딩 상태
+  const [error, setError] = useState(null);                  // 에러 상태
+  const [pendingActions, setPendingActions] = useState([]); // 대기 중인 동기화 작업
+  const [syncing, setSyncing] = useState(false);             // 동기화 진행 중 여부
+  const [lastSyncError, setLastSyncError] = useState(null);  // 마지막 동기화 에러
 
   useEffect(() => {
     loadNotes();
   }, []);
 
+  /**
+   * 서버에서 메모 불러오기
+   * 실패 시 로컬 스토리지의 메모를 사용
+   */
   const loadNotes = async () => {
     try {
       setLoading(true);
@@ -35,6 +52,7 @@ export const useNotes = () => {
       const data = await fetchNotes();
       setNotes(data);
     } catch (err) {
+      // 서버 연결 실패 시 로컬 데이터 사용
       const fallbackNotes = readLocalNotes();
       setNotes(fallbackNotes);
       setError('Server unreachable. Showing local notes.');
@@ -44,16 +62,24 @@ export const useNotes = () => {
     }
   };
 
+  /**
+   * 새 메모 추가
+   * 낙관적 업데이트: UI에 즉시 반영 후 서버 동기화
+   * @param {string} title - 메모 제목
+   * @param {string} text - 메모 내용
+   * @param {string} image - 이미지 URL
+   */
   const addNote = async (title, text, image) => {
+    // 낙관적 업데이트를 위한 임시 메모 생성
     const optimisticNote = {
       id: uuidv4(),
       title: title.trim() || null,
       text: text.trim() || null,
       image,
-      // color: DEFAULT_NOTE_COLOR,
       createdAt: new Date().toISOString(),
     };
 
+    // UI에 즉시 반영
     setNotes((prev) => [optimisticNote, ...prev]);
 
     try {
@@ -75,8 +101,13 @@ export const useNotes = () => {
     }
   };
 
+  /**
+   * 메모 수정
+   * 낙관적 업데이트: UI에 즉시 반영 후 서버 동기화
+   * @param {Object} updatedNote - 수정된 메모 객체
+   */
   const updateNote = async (updatedNote) => {
-    // Optimistic update.
+    // 낙관적 업데이트: UI에 즉시 반영
     setNotes((prevNotes) =>
       prevNotes.map((note) => (note.id === updatedNote.id ? updatedNote : note))
     );
@@ -100,6 +131,10 @@ export const useNotes = () => {
     }
   };
 
+  /**
+   * 메모를 휴지통으로 이동
+   * @param {string} id - 메모 ID
+   */
   const moveToTrash = async (id) => {
     const noteToTrash = notes.find((n) => n.id === id);
     if (!noteToTrash) return;
@@ -108,6 +143,10 @@ export const useNotes = () => {
     await updateNote(updatedNote);
   };
 
+  /**
+   * 휴지통에서 메모 복원
+   * @param {string} id - 메모 ID
+   */
   const restoreNote = async (id) => {
     const noteToRestore = notes.find((n) => n.id === id);
     if (!noteToRestore) return;
@@ -116,7 +155,37 @@ export const useNotes = () => {
     await updateNote(updatedNote);
   };
 
+  /**
+   * 메모 보관
+   * @param {string} id - 메모 ID
+   */
+  const archiveNote = async (id) => {
+    const noteToArchive = notes.find((n) => n.id === id);
+    if (!noteToArchive) return;
+
+    const updatedNote = { ...noteToArchive, isArchived: true };
+    await updateNote(updatedNote);
+  };
+
+  /**
+   * 메모 보관 해제
+   * @param {string} id - 메모 ID
+   */
+  const unarchiveNote = async (id) => {
+    const noteToUnarchive = notes.find((n) => n.id === id);
+    if (!noteToUnarchive) return;
+
+    const updatedNote = { ...noteToUnarchive, isArchived: false };
+    await updateNote(updatedNote);
+  };
+
+
+  /**
+   * 메모 영구 삭제
+   * @param {string} id - 메모 ID
+   */
   const deleteForever = async (id) => {
+    // UI에서 즉시 제거
     setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
 
     try {
@@ -197,6 +266,8 @@ export const useNotes = () => {
     removeNote,
     moveToTrash,
     restoreNote,
+    archiveNote,
+    unarchiveNote,
     deleteForever,
     loadNotes,
   };
