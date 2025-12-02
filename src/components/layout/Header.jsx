@@ -1,10 +1,35 @@
-import React from 'react';
-import { FiMenu, FiSearch, FiX, FiMoon, FiSun, FiFileText } from 'react-icons/fi';
+import React, { useEffect, useRef, useState } from 'react';
+import { FiMenu, FiSearch, FiX, FiMoon, FiSun, FiFileText, FiLogOut } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 
 const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onToggleDarkMode }) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
+
   const handleClearSearch = () => {
     onSearchChange('');
   };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  // 프로필 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const avatarLabel = user ? (user.name || user.email || '?').charAt(0).toUpperCase() : '?';
 
   return (
     <header className="header">
@@ -51,6 +76,34 @@ const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onTogg
         >
           {isDarkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
         </button>
+        {user ? (
+          <div className="profile-wrapper" ref={profileRef}>
+            <button
+              className="profile-avatar"
+              onClick={() => setProfileOpen((prev) => !prev)}
+              type="button"
+              aria-label="프로필 메뉴 열기"
+            >
+              {avatarLabel}
+            </button>
+            {profileOpen && (
+              <div className="profile-dropdown">
+                <div className="profile-info">
+                  <div className="profile-name">{user.name || '이름 없음'}</div>
+                  <div className="profile-email">{user.email}</div>
+                </div>
+                <button className="profile-logout" onClick={handleLogout} type="button">
+                  <FiLogOut size={16} />
+                  <span>로그아웃</span>
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <button className="logout-btn" onClick={() => navigate('/login')} type="button">
+            로그인
+          </button>
+        )}
       </div>
     </header>
   );

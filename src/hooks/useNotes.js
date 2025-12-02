@@ -1,17 +1,20 @@
 ﻿import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { fetchNotes, createNote, updateNote as updateNoteAPI, deleteNote as deleteNoteAPI } from '../services/api';
+import { useAuth } from './useAuth';
 
 // 로컬 스토리지 키
 const LOCAL_STORAGE_KEY = 'advancekeep-notes';
+
+const getStorageKey = (userId) => (userId ? `${LOCAL_STORAGE_KEY}-${userId}` : LOCAL_STORAGE_KEY);
 
 /**
  * 로컬 스토리지에서 메모 읽기
  * @returns {Array} 저장된 메모 배열
  */
-const readLocalNotes = () => {
+const readLocalNotes = (userId) => {
   if (typeof localStorage === 'undefined') return [];
-  const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+  const stored = localStorage.getItem(getStorageKey(userId));
   return stored ? JSON.parse(stored) : [];
 };
 
@@ -19,9 +22,9 @@ const readLocalNotes = () => {
  * 로컬 스토리지에 메모 저장
  * @param {Array} notes - 저장할 메모 배열
  */
-const writeLocalNotes = (notes) => {
+const writeLocalNotes = (userId, notes) => {
   if (typeof localStorage === 'undefined') return;
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(notes));
+  localStorage.setItem(getStorageKey(userId), JSON.stringify(notes));
 };
 
 /**
@@ -29,6 +32,7 @@ const writeLocalNotes = (notes) => {
  * 서버 동기화, 로컬 스토리지 백업, 낙관적 업데이트 기능 제공
  */
 export const useNotes = () => {
+  const { user } = useAuth();
   // 상태 관리
   const [notes, setNotes] = useState([]);                    // 메모 목록
   const [loading, setLoading] = useState(false);             // 로딩 상태
@@ -38,22 +42,31 @@ export const useNotes = () => {
   const [lastSyncError, setLastSyncError] = useState(null);  // 마지막 동기화 에러
 
   useEffect(() => {
+    setNotes([]);
     loadNotes();
-  }, []);
+    setPendingActions([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   /**
    * 서버에서 메모 불러오기
    * 실패 시 로컬 스토리지의 메모를 사용
    */
   const loadNotes = async () => {
+    if (!user) {
+      setNotes([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
-      const data = await fetchNotes();
+      const data = await fetchNotes(user.id);
       setNotes(data);
     } catch (err) {
       // 서버 연결 실패 시 로컬 데이터 사용
-      const fallbackNotes = readLocalNotes();
+      const fallbackNotes = readLocalNotes(user?.id);
       setNotes(fallbackNotes);
       setError('Server unreachable. Showing local notes.');
       console.error('Load notes failed, using local data:', err);
@@ -70,6 +83,10 @@ export const useNotes = () => {
    * @param {string} image - 이미지 URL
    */
   const addNote = async (title, text, image) => {
+    if (!user) {
+      throw new Error('로그인이 필요합니다.');
+    }
+
     // 낙관적 업데이트를 위한 임시 메모 생성
     const optimisticNote = {
       id: uuidv4(),
@@ -77,6 +94,7 @@ export const useNotes = () => {
       text: text.trim() || null,
       image,
       createdAt: new Date().toISOString(),
+      userId: user.id,
     };
 
     // UI에 즉시 반영
@@ -209,12 +227,14 @@ export const useNotes = () => {
   const removeNote = deleteForever;
 
   useEffect(() => {
-    writeLocalNotes(notes);
-  }, [notes]);
+    if (!user) return;
+    writeLocalNotes(user.id, notes);
+  }, [notes, user]);
 
   // Background retry for pending actions (exponential backoff, capped).
   useEffect(() => {
     if (pendingActions.length === 0) return undefined;
+    if (!user) return undefined;
 
     const action = pendingActions[0];
     const delay = action.attempts === 0 ? 0 : Math.min(30000, 2000 * action.attempts);

@@ -7,8 +7,9 @@ const handleResponse = async (response) => {
   return response.json();
 };
 
-export const fetchNotes = async () => {
-  const response = await fetch(API_URL);
+export const fetchNotes = async (userId) => {
+  if (!userId) return [];
+  const response = await fetch(`${API_URL}?userId=${encodeURIComponent(userId)}`);
   return handleResponse(response);
 };
 
