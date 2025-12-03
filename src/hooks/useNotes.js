@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { fetchNotes, createNote, updateNote as updateNoteAPI, deleteNote as deleteNoteAPI } from '../services/api';
+import { findUserByEmail } from '../services/auth';
 import { useAuth } from './useAuth';
 
 // 로컬 스토리지 키
@@ -65,6 +66,17 @@ export const useNotes = () => {
   }, [user?.id]);
 
   /**
+   * 현재 사용자에게 보이는 노트만 필터링
+   */
+  const filterNotesForUser = (items = [], userId) =>
+    items.filter(
+      (note) =>
+        note.userId === userId ||
+        note.ownerId === userId ||
+        (note.sharedWith || []).includes(userId)
+    );
+
+  /**
    * 서버에서 메모 불러오기
    * 실패 시 로컬 스토리지의 메모를 사용
    */
@@ -79,11 +91,11 @@ export const useNotes = () => {
       setLoading(true);
       setError(null);
       const data = await fetchNotes(user.id);
-      setNotes(data);
+      setNotes(filterNotesForUser(data, user.id));
     } catch (err) {
       // 서버 연결 실패 시 로컬 데이터 사용
       const fallbackNotes = readLocalNotes(user?.id);
-      setNotes(fallbackNotes);
+      setNotes(filterNotesForUser(fallbackNotes, user.id));
       setError('Server unreachable. Showing local notes.');
       console.error('Load notes failed, using local data:', err);
     } finally {
@@ -111,7 +123,9 @@ export const useNotes = () => {
       images,
       image: images?.[0] || null, // 기존 필드와 호환 유지
       createdAt: new Date().toISOString(),
-      userId: user.id,
+      userId: user.id, // 기존 필드(소유자)
+      ownerId: user.id, // 명확히 소유자를 구분하기 위한 필드
+      sharedWith: [],
     };
 
     // UI에 즉시 반영
@@ -214,6 +228,135 @@ export const useNotes = () => {
     await updateNote(updatedNote);
   };
 
+  /**
+   * 공유 대상 사용자 목록을 한번에 설정
+   * - 소유자는 전체 목록 변경 가능
+   * - 공유받은 사용자는 본인 제거만 가능
+   */
+  const setSharedUsers = async (id, nextSharedWithRaw = []) => {
+    if (!user) {
+      throw new Error('로그인이 필요합니다.');
+    }
+
+    const noteToUpdate = notes.find((n) => n.id === id);
+    if (!noteToUpdate) {
+      throw new Error('메모를 찾을 수 없습니다.');
+    }
+
+    const nextSharedWith = Array.from(new Set(nextSharedWithRaw.filter(Boolean)));
+    const isOwner = noteToUpdate.ownerId === user.id || noteToUpdate.userId === user.id;
+    const prevShared = noteToUpdate.sharedWith || [];
+
+    if (!isOwner) {
+      // 소유자가 아니면 본인 제거만 허용
+      const removingSelfOnly =
+        prevShared.includes(user.id) &&
+        !nextSharedWith.includes(user.id) &&
+        nextSharedWith.length === prevShared.length - 1 &&
+        prevShared.every((uid) => uid === user.id || nextSharedWith.includes(uid));
+
+      if (!removingSelfOnly) {
+        throw new Error('소유자만 공유를 변경할 수 있습니다.');
+      }
+    }
+
+    const updatedNote = {
+      ...noteToUpdate,
+      sharedWith: nextSharedWith,
+    };
+
+    return updateNote(updatedNote);
+  };
+
+  /**
+   * 메모를 특정 사용자와 공유
+   * @param {string} id - 메모 ID
+   * @param {string} email - 공유 대상 이메일
+   */
+  const shareNoteWithEmail = async (id, email) => {
+    if (!user) {
+      throw new Error('로그인이 필요합니다.');
+    }
+
+    const noteToShare = notes.find((n) => n.id === id);
+    if (!noteToShare) {
+      throw new Error('메모를 찾을 수 없습니다.');
+    }
+
+    // 서버 단에서도 공유는 소유자만 허용하도록 방어
+    const isOwner = noteToShare.ownerId === user.id || noteToShare.userId === user.id;
+    if (!isOwner) {
+      throw new Error('소유자만 공유할 수 있습니다.');
+    }
+
+    const targetUser = await findUserByEmail(email);
+    if (!targetUser) {
+      throw new Error('사용자를 찾을 수 없습니다.');
+    }
+    if (targetUser.id === user.id) {
+      throw new Error('본인과는 공유할 수 없습니다.');
+    }
+
+    const updatedShared = Array.from(new Set([...(noteToShare.sharedWith || []), targetUser.id]));
+    return setSharedUsers(id, updatedShared);
+  };
+
+  /**
+   * 특정 사용자와의 공유 해제 (사용자 ID 기반)
+   * @param {string} id - 메모 ID
+   * @param {string} targetUserId - 공유 해제할 사용자 ID
+   */
+  const unshareNote = async (id, targetUserId) => {
+    const noteToUpdate = notes.find((n) => n.id === id);
+    if (!noteToUpdate) return;
+
+    const updatedShared = (noteToUpdate.sharedWith || []).filter((uid) => uid !== targetUserId);
+    return setSharedUsers(id, updatedShared);
+  };
+
+  /**
+   * 특정 사용자와의 공유 해제 (이메일 입력 기반)
+   * - 소유자는 누구와도 공유 해제 가능
+   * - 공유받은 사용자는 본인만 공유 해제 가능
+   */
+  const unshareNoteWithEmail = async (id, email) => {
+    if (!user) {
+      throw new Error('로그인이 필요합니다.');
+    }
+
+    const trimmedEmail = email?.trim();
+    if (!trimmedEmail) {
+      throw new Error('이메일을 입력해 주세요.');
+    }
+
+    const noteToUpdate = notes.find((n) => n.id === id);
+    if (!noteToUpdate) {
+      throw new Error('메모를 찾을 수 없습니다.');
+    }
+
+    const isOwner = noteToUpdate.ownerId === user.id || noteToUpdate.userId === user.id;
+
+    let targetUserId = user.id;
+    if (isOwner) {
+      const targetUser = await findUserByEmail(trimmedEmail);
+      if (!targetUser) {
+        throw new Error('사용자를 찾을 수 없습니다.');
+      }
+      targetUserId = targetUser.id;
+    }
+
+    if (!isOwner && targetUserId !== user.id) {
+      throw new Error('소유자만 공유를 해제할 수 있습니다.');
+    }
+
+    const alreadyShared = (noteToUpdate.sharedWith || []).includes(targetUserId);
+    if (!alreadyShared) {
+      throw new Error('해당 사용자와 공유되어 있지 않습니다.');
+    }
+
+    return setSharedUsers(id, (noteToUpdate.sharedWith || []).filter((uid) => uid !== targetUserId));
+  };
+
 
   /**
    * 메모 영구 삭제
@@ -305,6 +448,10 @@ export const useNotes = () => {
     restoreNote,
     archiveNote,
     unarchiveNote,
+    setSharedUsers,
+    shareNoteWithEmail,
+    unshareNote,
+    unshareNoteWithEmail,
     deleteForever,
     loadNotes,
   };

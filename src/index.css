@@ -505,6 +505,35 @@ body {
   box-shadow: 0 8px 20px var(--shadow-hover);
 }
 
+.note-share-badge {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #3949ab;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.note-share-badge.shared-with-me {
+  background: #e0f7fa;
+  color: #00695c;
+}
+
+.dark-mode .note-share-badge {
+  background: rgba(102, 126, 234, 0.2);
+  color: #cdd6ff;
+}
+
+.dark-mode .note-share-badge.shared-with-me {
+  background: rgba(0, 150, 136, 0.2);
+  color: #8ef5dc;
+}
+
 .note-title {
   font-size: 18px;
   font-weight: 600;
@@ -914,6 +943,18 @@ input:disabled {
   border-color: rgba(255, 152, 0, 0.3);
 }
 
+.btn-unshare:hover {
+  background-color: rgba(156, 39, 176, 0.12);
+  color: #9c27b0;
+  border-color: rgba(156, 39, 176, 0.3);
+}
+
+.btn-share:hover {
+  background-color: rgba(102, 126, 234, 0.12);
+  color: #667eea;
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
 /* Unarchive Button */
 .btn-unarchive:hover {
   background-color: rgba(255, 152, 0, 0.1);
@@ -943,6 +984,18 @@ input:disabled {
   background-color: rgba(239, 83, 80, 0.2);
   color: #ef5350;
   border-color: rgba(239, 83, 80, 0.5);
+}
+
+.dark-mode .btn-unshare:hover {
+  background-color: rgba(156, 39, 176, 0.25);
+  color: #f2c1ff;
+  border-color: rgba(156, 39, 176, 0.5);
+}
+
+.dark-mode .btn-share:hover {
+  background-color: rgba(102, 126, 234, 0.25);
+  color: #cdd6ff;
+  border-color: rgba(102, 126, 234, 0.5);
 }
 
 .dark-mode .btn-restore:hover {

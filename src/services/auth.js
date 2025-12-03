@@ -73,3 +73,11 @@ export const loginUser = async (email, password) => {
 
   return sanitizeUser(user);
 };
+
+export const findUserByEmail = async (email) => {
+  const normalizedEmail = email.trim().toLowerCase();
+  const response = await fetch(`${USERS_URL}?email=${encodeURIComponent(normalizedEmail)}`);
+  const users = await handleResponse(response);
+  if (users.length === 0) return null;
+  return sanitizeUser(users[0]);
+};
