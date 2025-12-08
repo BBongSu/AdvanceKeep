@@ -75,15 +75,15 @@ function NoteForm({ onAdd, addingNote }) {
 
   return (
     <form onSubmit={onSubmit} className="input-form">
-    <div className="input-container">
+      <div className="input-container">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="제목"
           className="note-title-input"
-      disabled={addingNote}
-    />
+          disabled={addingNote}
+        />
 
         <div className="markdown-editor">
           <textarea
@@ -97,7 +97,7 @@ function NoteForm({ onAdd, addingNote }) {
         </div>
 
         <div className="input-hint">
-          <span className="hint-text">Enter: 줄바꿈, Shift + Enter: 줄바꿈 유지</span>
+          <span className="hint-text">Enter: 줄바꿈</span>
         </div>
 
         <div className="image-preview-container">
@@ -128,12 +128,12 @@ function NoteForm({ onAdd, addingNote }) {
               style={{ display: 'none' }}
             />
           </label>
-        <button
-          type="submit"
-          className="add-btn"
-          disabled={addingNote || uploading || (!title.trim() && !text.trim() && selectedImages.length === 0)}
-          aria-label="메모 추가"
-        >
+          <button
+            type="submit"
+            className="add-btn"
+            disabled={addingNote || uploading || (!title.trim() && !text.trim() && selectedImages.length === 0)}
+            aria-label="메모 추가"
+          >
             {addingNote ? (
               <FiLoader size={20} className="spinning" />
             ) : (

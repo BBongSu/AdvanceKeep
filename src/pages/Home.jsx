@@ -30,7 +30,7 @@ function Home() {
     const { user } = useAuth();
 
     // 검색어 가져오기 (상위 컴포넌트에서 전달)
-    const { searchQuery } = useOutletContext();
+    const { searchQuery, viewMode } = useOutletContext();
 
     // 휴지통과 보관함에 있지 않은 활성 메모만 필터링
     const activeNotes = notes.filter(note => !note.inTrash && !note.isArchived);
@@ -207,20 +207,20 @@ function Home() {
             <NoteForm onAdd={handleAddNote} addingNote={addingNote} />
 
             {/* 메모 그리드 */}
-            <div className="notes-grid">
+            <div className={`notes-grid ${viewMode === 'list' ? 'list-view' : ''}`}>
                 {filteredNotes.map((note) => (
                     <NoteCard
                         key={note.id}
-                    note={note}
-                    onEdit={setEditingNote}
-                    onDelete={handleDeleteNote}
-                    onArchive={handleArchiveNote}
-                    onShareToggle={handleShareToggle}
-                    isOwner={note.userId === user?.id || note.ownerId === user?.id}
-                    sharedWithMe={
-                        note.userId !== user?.id &&
-                        note.ownerId !== user?.id &&
-                        (note.sharedWith || []).includes(user?.id)
+                        note={note}
+                        onEdit={setEditingNote}
+                        onDelete={handleDeleteNote}
+                        onArchive={handleArchiveNote}
+                        onShareToggle={handleShareToggle}
+                        isOwner={note.userId === user?.id || note.ownerId === user?.id}
+                        sharedWithMe={
+                            note.userId !== user?.id &&
+                            note.ownerId !== user?.id &&
+                            (note.sharedWith || []).includes(user?.id)
                         }
                         addingNote={addingNote}
                     />

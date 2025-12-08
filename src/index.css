@@ -80,6 +80,24 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.icon-btn:hover {
+  background-color: var(--hover-bg);
+  color: var(--text-primary);
+}
+
 .hamburger-btn {
   background: none;
   border: none;
@@ -470,9 +488,25 @@ body {
   width: 100%;
 }
 
+.notes-grid.list-view {
+  display: flex;
+  flex-direction: column;
+  column-width: auto;
+  align-items: center;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.notes-grid.list-view .note-card {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 12px;
+}
+
 .note-card {
   position: relative;
-  padding: 56px 20px 20px 20px; /* 상단 여백을 넉넉히 줘서 버튼이 제목을 가리지 않도록 조정 */
+  padding: 56px 20px 20px 20px;
+  /* 상단 여백을 넉넉히 줘서 버튼이 제목을 가리지 않도록 조정 */
   border-radius: 12px;
   box-shadow: 0 4px 10px var(--shadow);
   transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s ease;
@@ -482,7 +516,8 @@ body {
   align-items: flex-start;
   justify-content: flex-start;
   animation: fadeInUp 0.3s ease-out;
-  break-inside: avoid; /* 컬럼 레이아웃에서 카드가 쪼개지지 않도록 */
+  break-inside: avoid;
+  /* 컬럼 레이아웃에서 카드가 쪼개지지 않도록 */
   page-break-inside: avoid;
   margin-bottom: 18px;
   width: 100%;
@@ -555,7 +590,8 @@ body {
   width: 100%;
   margin: 0;
   transition: color 0.3s ease;
-  white-space: pre-wrap; /* 개행 표시 */
+  white-space: pre-wrap;
+  /* 개행 표시 */
 }
 
 /* note-text: 기본 pre-wrap 유지 (이미 위에서 정의됨) */
@@ -751,10 +787,12 @@ input:disabled {
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 10px;
   margin-bottom: 12px;
-  max-height: 240px; /* 이미지가 많을 때 카드가 과도하게 길어지는 것을 방지 */
+  max-height: 240px;
+  /* 이미지가 많을 때 카드가 과도하게 길어지는 것을 방지 */
   overflow-y: auto;
   position: relative;
-  padding-right: 6px; /* 스크롤 공간 확보 */
+  padding-right: 6px;
+  /* 스크롤 공간 확보 */
 }
 
 .note-images-grid::-webkit-scrollbar {
@@ -1044,7 +1082,8 @@ input:disabled {
   position: relative;
   animation: slideUp 0.2s ease;
   border: 1px solid var(--border-color);
-  max-height: 90vh; /* 모달이 뷰포트 밖으로 커지지 않도록 높이 제한 */
+  max-height: 90vh;
+  /* 모달이 뷰포트 밖으로 커지지 않도록 높이 제한 */
   overflow-y: auto;
 }
 
@@ -1081,7 +1120,8 @@ input:disabled {
 }
 
 .modal-textarea {
-  max-height: 220px; /* 과도한 개행으로 모달이 길어지는 것 방지 */
+  max-height: 220px;
+  /* 과도한 개행으로 모달이 길어지는 것 방지 */
   overflow-y: auto;
   resize: vertical;
   line-height: 1.5;

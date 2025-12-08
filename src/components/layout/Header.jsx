@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FiMenu, FiSearch, FiX, FiMoon, FiSun, FiFileText, FiLogOut } from 'react-icons/fi';
+import { FiMenu, FiSearch, FiX, FiMoon, FiSun, FiFileText, FiLogOut, FiGrid, FiList } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
-const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onToggleDarkMode }) => {
+const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onToggleDarkMode, viewMode, onViewModeChange }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -69,6 +69,16 @@ const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onTogg
         </div>
       </div>
       <div className="header-right">
+        {onViewModeChange && (
+          <button
+            className="icon-btn view-mode-btn"
+            onClick={() => onViewModeChange(viewMode === 'list' ? 'card' : 'list')}
+            aria-label={viewMode === 'list' ? '그리드 뷰로 전환' : '리스트 뷰로 전환'}
+            title={viewMode === 'list' ? '그리드 뷰' : '리스트 뷰'}
+          >
+            {viewMode === 'list' ? <FiGrid size={20} /> : <FiList size={20} />}
+          </button>
+        )}
         <button
           className="icon-btn dark-mode-btn"
           onClick={onToggleDarkMode}
