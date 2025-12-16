@@ -10,6 +10,8 @@ import {
   where,
   Timestamp,
   setDoc,
+  documentId,
+  getDoc,
 } from 'firebase/firestore';
 
 const NOTES_COLLECTION = 'notes';
@@ -53,7 +55,6 @@ export const fetchNotes = async (userId) => {
     where('sharedWith', 'array-contains', userId)
   );
 
-  // 두 쿼리를 병렬로 실행
   const [ownedSnapshot, sharedSnapshot] = await Promise.all([
     getDocs(ownedQuery),
     getDocs(sharedQuery),
@@ -62,15 +63,54 @@ export const fetchNotes = async (userId) => {
   const ownedNotes = ownedSnapshot.docs.map(docToNote);
   const sharedNotes = sharedSnapshot.docs.map(docToNote);
 
-  // 결과 병합 및 중복 제거 (혹시 모를 중복 방지)
+  // 결과 병합
   const allNotes = [...ownedNotes, ...sharedNotes];
   const uniqueNotesMap = new Map();
+  allNotes.forEach(note => uniqueNotesMap.set(note.id, note));
+  const uniqueNotes = Array.from(uniqueNotesMap.values());
 
-  allNotes.forEach(note => {
-    uniqueNotesMap.set(note.id, note);
+  // 관련 사용자 정보 가져오기 (이름 표시용)
+  // unique UIDs 수집: 작성자(userId) 및 공유 대상(sharedWith)
+  const userIdsToFetch = new Set();
+  uniqueNotes.forEach(note => {
+    if (note.userId) userIdsToFetch.add(note.userId);
+    if (note.sharedWith && Array.isArray(note.sharedWith)) {
+      note.sharedWith.forEach(uid => userIdsToFetch.add(uid));
+    }
   });
 
-  return Array.from(uniqueNotesMap.values());
+  // 사용자 정보 조회 (캐싱을 위해 Map 사용)
+  const userMap = new Map();
+  // 한 번에 가져오기 위해 Promise.all 사용 (in query limit 10 회피 위해 개별 조회 또는 chunk)
+  // 소규모 앱이므로 개별 조회 병렬 처리
+  const userPromises = Array.from(userIdsToFetch).map(uid =>
+    getDoc(doc(db, 'users', uid)).then(userSnap => {
+      if (userSnap.exists()) {
+        userMap.set(uid, userSnap.data().name || 'Unknown');
+      }
+    }).catch(err => console.error(`Failed to fetch user ${uid}`, err))
+  );
+
+  await Promise.all(userPromises);
+
+  // 노트 객체에 이름 정보 주입
+  const enrichedNotes = uniqueNotes.map(note => {
+    // 작성자 이름
+    const ownerName = userMap.get(note.userId) || 'Unknown';
+
+    // 공유 대상 이름 목록
+    const sharedWithNames = (note.sharedWith || [])
+      .map(uid => userMap.get(uid))
+      .filter(name => name); // 이름 있는 경우만
+
+    return {
+      ...note,
+      ownerName,
+      sharedWithNames,
+    };
+  });
+
+  return enrichedNotes;
 };
 
 /**

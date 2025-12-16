@@ -47,7 +47,13 @@ function NoteCard({
         >
             {(sharedWithMe || (note.sharedWith && note.sharedWith.length > 0)) && (
                 <div className={`note-share-badge ${sharedWithMe ? 'shared-with-me' : ''}`}>
-                    {sharedWithMe ? '나와 공유됨' : '공유 중'}
+                    {sharedWithMe
+                        ? `${note.ownerName || '누군가'}에게 공유받음`
+                        : `${note.sharedWithNames && note.sharedWithNames.length > 0 ? note.sharedWithNames[0] : '누군가'}${(note.sharedWithNames?.length || 0) > 1
+                            ? ` 외 ${(note.sharedWithNames?.length || 0) - 1}명`
+                            : ''
+                        }에게 공유함`
+                    }
                 </div>
             )}
 
