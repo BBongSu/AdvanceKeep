@@ -9,6 +9,7 @@ import {
   query,
   where,
   Timestamp,
+  setDoc,
 } from 'firebase/firestore';
 
 const NOTES_COLLECTION = 'notes';
@@ -90,11 +91,14 @@ export const createNote = async (note) => {
     updatedAt: new Date().toISOString(),
   };
 
-  // ID는 Firestore 가 자동으로 생성하므로 데이터에서 제거
-  delete noteData.id;
-
-  const docRef = await addDoc(collection(db, NOTES_COLLECTION), noteData);
-  return { id: docRef.id, ...noteData };
+  // ID가 있으면 setDoc으로 지정된 ID 사용, 없으면 addDoc으로 자동 생성
+  if (note.id) {
+    await setDoc(doc(db, NOTES_COLLECTION, note.id), noteData);
+    return { ...noteData };
+  } else {
+    const docRef = await addDoc(collection(db, NOTES_COLLECTION), noteData);
+    return { id: docRef.id, ...noteData };
+  }
 };
 
 /**
