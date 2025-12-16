@@ -1,5 +1,4 @@
-export const API_URL = 'http://localhost:3001/notes';
-export const USERS_URL = 'http://localhost:3001/users';
+
 export const AUTH_STORAGE_KEY = 'advancekeep-user';
 
 export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB

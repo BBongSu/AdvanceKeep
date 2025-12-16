@@ -1,83 +1,101 @@
-import { v4 as uuidv4 } from 'uuid';
-import { USERS_URL } from '../constants';
+import { auth, db } from './firebase';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  updateProfile,
+} from 'firebase/auth';
+import { doc, setDoc, collection, query, where, getDocs, getDoc } from 'firebase/firestore';
 
-const handleResponse = async (response) => {
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  return response.json();
-};
-
-const toHex = (buffer) =>
-  Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-
-export const hashPassword = async (password) => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  return toHex(hashBuffer);
-};
-
-const sanitizeUser = (user) => {
-  const { passwordHash, ...safeUser } = user;
-  return safeUser;
+// Helper to format Firebase user object to match app's expected user structure
+const formatUser = (user) => {
+  return {
+    id: user.uid,
+    name: user.displayName || user.email.split('@')[0],
+    email: user.email,
+  };
 };
 
 export const registerUser = async ({ name, email, password }) => {
-  const normalizedEmail = email.trim().toLowerCase();
-  const existingRes = await fetch(`${USERS_URL}?email=${encodeURIComponent(normalizedEmail)}`);
-  const existingUsers = await handleResponse(existingRes);
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-  if (existingUsers.length > 0) {
-    throw new Error('이미 가입된 이메일입니다.');
+    await updateProfile(user, {
+      displayName: name,
+    });
+
+    // Save user info to Firestore for searching by email
+    await setDoc(doc(db, 'users', user.uid), {
+      uid: user.uid,
+      name: name,
+      email: user.email,
+      createdAt: new Date().toISOString(),
+    });
+
+    return formatUser(user);
+  } catch (error) {
+    if (error.code === 'auth/email-already-in-use') {
+      throw new Error('이미 가입된 이메일입니다.');
+    }
+    throw error;
   }
-
-  const passwordHash = await hashPassword(password);
-  const newUser = {
-    id: uuidv4(),
-    name: name.trim() || '사용자',
-    email: normalizedEmail,
-    passwordHash,
-    createdAt: new Date().toISOString(),
-  };
-
-  const response = await fetch(USERS_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(newUser),
-  });
-
-  const savedUser = await handleResponse(response);
-  return sanitizeUser(savedUser);
 };
+
+
 
 export const loginUser = async (email, password) => {
-  const normalizedEmail = email.trim().toLowerCase();
-  const response = await fetch(`${USERS_URL}?email=${encodeURIComponent(normalizedEmail)}`);
-  const users = await handleResponse(response);
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-  if (users.length === 0) {
-    throw new Error('등록된 이메일을 찾을 수 없습니다.');
+    // Check if user exists in Firestore (Migration/Self-repair)
+    const userDocRef = doc(db, 'users', user.uid);
+    const userSnapshot = await getDoc(userDocRef);
+
+    if (!userSnapshot.exists()) {
+      // If missing, create it now
+      await setDoc(userDocRef, {
+        uid: user.uid,
+        name: user.displayName || user.email.split('@')[0],
+        email: user.email,
+        createdAt: new Date().toISOString(),
+      });
+    }
+
+    return formatUser(user);
+  } catch (error) {
+    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+      throw new Error('이메일 또는 비밀번호가 일치하지 않습니다.');
+    }
+    throw error;
   }
-
-  const user = users[0];
-  const passwordHash = await hashPassword(password);
-
-  if (user.passwordHash !== passwordHash) {
-    throw new Error('비밀번호가 일치하지 않습니다.');
-  }
-
-  return sanitizeUser(user);
 };
 
+export const logoutUser = async () => {
+  await firebaseSignOut(auth);
+};
+
+// Re-implemented for sharing feature
 export const findUserByEmail = async (email) => {
-  const normalizedEmail = email.trim().toLowerCase();
-  const response = await fetch(`${USERS_URL}?email=${encodeURIComponent(normalizedEmail)}`);
-  const users = await handleResponse(response);
-  if (users.length === 0) return null;
-  return sanitizeUser(users[0]);
+  const usersRef = collection(db, 'users');
+  const q = query(usersRef, where('email', '==', email));
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    return null;
+  }
+
+  const userDoc = querySnapshot.docs[0].data();
+  return {
+    id: userDoc.uid,
+    name: userDoc.name,
+    email: userDoc.email,
+  };
+};
+
+// Optional: If you need to check session state directly
+export const getCurrentUser = () => {
+  const user = auth.currentUser;
+  return user ? formatUser(user) : null;
 };
