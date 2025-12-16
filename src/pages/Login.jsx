@@ -7,12 +7,19 @@ import { findEmailByName } from '../services/auth';
 import { useAuth } from '../hooks/useAuth';
 
 const Login = () => {
-  const { login, loading } = useAuth();
+  // 이미 로그인된 사용자는 접근 불가 -> 홈으로 리다이렉트
+  const { login, loading, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '' });
 
   const from = location.state?.from || '/';
+
+  React.useEffect(() => {
+    if (user) {
+      navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
