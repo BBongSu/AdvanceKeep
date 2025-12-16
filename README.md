@@ -6,24 +6,20 @@ AdvanceKeep은 Google Keep의 기능을 참고하고 부족한 부분을 보완�
 
 ## 🚀 설치 및 실행 방법
 
-이 프로젝트는 React 프론트엔드와 JSON Server 백엔드(Mock)로 구성되어 있습니다. 실행을 위해서는 두 개의 터미널이 필요합니다. (MongoDB 연동 예정)
+이 프로젝트는 React 프론트엔드와 JSON Server 백엔드(Mock)로 구성되어 있습니다. `npm start` 명령어 하나로 간편하게 실행할 수 있습니다. (MongoDB 연동 예정)
 
 ### 1. 프로젝트 클론 및 의존성 설치
 ```bash
 npm install
 ```
 
-### 2. 백엔드 서버 실행 (JSON Server)
-데이터 저장을 위한 가상 API 서버를 실행합니다. (포트 3001)
+### 2. 프로젝트 실행
+프론트엔드와 백엔드 서버를 동시에 실행합니다.
 ```bash
-npm run db
+npm start
 ```
 
-### 3. 프론트엔드 개발 서버 실행
-React 애플리케이션을 실행합니다.
-```bash
-npm run dev
-```
+이 명령어는 내부적으로 `npm run dev`와 `npm run db`를 동시에 실행합니다.
 
 브라우저에서 실행된 주소(보통 `http://localhost:5173`)로 접속하여 애플리케이션을 확인하세요.
 

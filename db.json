@@ -10,7 +10,8 @@
       "userId": "dd4b3055-b004-45b0-877f-b2c76c6c75db",
       "ownerId": "dd4b3055-b004-45b0-877f-b2c76c6c75db",
       "sharedWith": [],
-      "isArchived": false
+      "isArchived": false,
+      "inTrash": true
     },
     {
       "id": "9b9b5f68-5b49-47ed-9450-61756a983fe2",
@@ -21,7 +22,8 @@
       "createdAt": "2025-12-08T09:25:25.704Z",
       "userId": "dd4b3055-b004-45b0-877f-b2c76c6c75db",
       "ownerId": "dd4b3055-b004-45b0-877f-b2c76c6c75db",
-      "sharedWith": []
+      "sharedWith": [],
+      "inTrash": true
     },
     {
       "id": "b2d13509-2fdb-4b4c-9ade-81965f4c75b3",
@@ -32,7 +34,8 @@
       "createdAt": "2025-12-08T09:25:30.968Z",
       "userId": "dd4b3055-b004-45b0-877f-b2c76c6c75db",
       "ownerId": "dd4b3055-b004-45b0-877f-b2c76c6c75db",
-      "sharedWith": []
+      "sharedWith": [],
+      "inTrash": true
     },
     {
       "id": "a45ad0cc-17fb-48e4-958a-3023c5dd8281",
@@ -43,7 +46,8 @@
       "createdAt": "2025-12-08T09:30:26.353Z",
       "userId": "dd4b3055-b004-45b0-877f-b2c76c6c75db",
       "ownerId": "dd4b3055-b004-45b0-877f-b2c76c6c75db",
-      "sharedWith": []
+      "sharedWith": [],
+      "inTrash": true
     },
     {
       "id": "43c1c7d5-6bde-4004-ae3f-af59e0861ae8",
@@ -52,6 +56,18 @@
       "images": [],
       "image": null,
       "createdAt": "2025-12-08T09:31:14.048Z",
+      "userId": "dd4b3055-b004-45b0-877f-b2c76c6c75db",
+      "ownerId": "dd4b3055-b004-45b0-877f-b2c76c6c75db",
+      "sharedWith": [],
+      "inTrash": true
+    },
+    {
+      "id": "578f2682-8d2a-4d7a-837b-d903cb09202a",
+      "title": "qwerghqwehqwehqwehqweh",
+      "text": "asdfasdf",
+      "images": [],
+      "image": null,
+      "createdAt": "2025-12-16T01:37:38.158Z",
       "userId": "dd4b3055-b004-45b0-877f-b2c76c6c75db",
       "ownerId": "dd4b3055-b004-45b0-877f-b2c76c6c75db",
       "sharedWith": []
