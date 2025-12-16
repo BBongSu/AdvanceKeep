@@ -44,4 +44,6 @@ dist-ssr/
 .parcel-cache/
 
 # TypeScript build info
-*.tsbuildinfo
+
+# Firebase cache
+.firebase/
