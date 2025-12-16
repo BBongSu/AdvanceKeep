@@ -100,8 +100,7 @@ export const fetchNotes = async (userId) => {
 
     // 공유 대상 이름 목록
     const sharedWithNames = (note.sharedWith || [])
-      .map(uid => userMap.get(uid))
-      .filter(name => name); // 이름 있는 경우만
+      .map(uid => userMap.get(uid) || 'Unknown') // 이름 없는 경우 'Unknown' 처리 (인덱스 유지)
 
     return {
       ...note,

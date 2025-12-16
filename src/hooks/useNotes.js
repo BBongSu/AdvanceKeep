@@ -62,7 +62,7 @@ export const useNotes = () => {
     setNotes([]);
     loadNotes();
     setPendingActions([]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   /**
@@ -232,8 +232,9 @@ export const useNotes = () => {
    * 공유 대상 사용자 목록을 한번에 설정
    * - 소유자는 전체 목록 변경 가능
    * - 공유받은 사용자는 본인 제거만 가능
+   * @param {Array} nextSharedWithNames - (Optional) 공유 대상 이름 목록 (낙관적 업데이트용)
    */
-  const setSharedUsers = async (id, nextSharedWithRaw = []) => {
+  const setSharedUsers = async (id, nextSharedWithRaw = [], nextSharedWithNames = null) => {
     if (!user) {
       throw new Error('로그인이 필요합니다.');
     }
@@ -264,6 +265,11 @@ export const useNotes = () => {
       ...noteToUpdate,
       sharedWith: nextSharedWith,
     };
+
+    // 이름 목록도 함께 업데이트 (낙관적 UI용)
+    if (nextSharedWithNames) {
+      updatedNote.sharedWithNames = nextSharedWithNames;
+    }
 
     return updateNote(updatedNote);
   };
@@ -297,8 +303,20 @@ export const useNotes = () => {
       throw new Error('본인과는 공유할 수 없습니다.');
     }
 
-    const updatedShared = Array.from(new Set([...(noteToShare.sharedWith || []), targetUser.id]));
-    return setSharedUsers(id, updatedShared);
+    // 이미 공유된 사용자인지 확인
+    const currentShared = noteToShare.sharedWith || [];
+    if (currentShared.includes(targetUser.id)) {
+      return noteToShare; // 이미 공유됨
+    }
+
+    const nextSharedWith = [...currentShared, targetUser.id];
+
+    // 이름 목록 업데이트 (낙관적 UI용)
+    const currentNames = noteToShare.sharedWithNames || [];
+    // sharedWith와 sharedWithNames의 길이가 다르면(초기 로딩 등) 단순히 추가만 함
+    const nextSharedWithNames = [...currentNames, targetUser.name];
+
+    return setSharedUsers(id, nextSharedWith, nextSharedWithNames);
   };
 
   /**
@@ -310,8 +328,23 @@ export const useNotes = () => {
     const noteToUpdate = notes.find((n) => n.id === id);
     if (!noteToUpdate) return;
 
-    const updatedShared = (noteToUpdate.sharedWith || []).filter((uid) => uid !== targetUserId);
-    return setSharedUsers(id, updatedShared);
+    const currentShared = noteToUpdate.sharedWith || [];
+    const targetIndex = currentShared.indexOf(targetUserId);
+
+    if (targetIndex === -1) return; // 공유되지 않음
+
+    const nextSharedWith = [...currentShared];
+    nextSharedWith.splice(targetIndex, 1);
+
+    // 이름 목록에서도 제거
+    const currentNames = noteToUpdate.sharedWithNames || [];
+    const nextSharedWithNames = [...currentNames];
+    // 인덱스 안전 장치
+    if (nextSharedWithNames.length > targetIndex) {
+      nextSharedWithNames.splice(targetIndex, 1);
+    }
+
+    return setSharedUsers(id, nextSharedWith, nextSharedWithNames);
   };
 
   /**
@@ -354,7 +387,24 @@ export const useNotes = () => {
       throw new Error('해당 사용자와 공유되어 있지 않습니다.');
     }
 
-    return setSharedUsers(id, (noteToUpdate.sharedWith || []).filter((uid) => uid !== targetUserId));
+    const currentShared = noteToUpdate.sharedWith || [];
+    const targetIndex = currentShared.indexOf(targetUserId);
+
+    if (targetIndex === -1) {
+      // 이미 위에서 체크했으나 안전장치
+      return noteToUpdate;
+    }
+
+    const nextSharedWith = [...currentShared];
+    nextSharedWith.splice(targetIndex, 1);
+
+    const currentNames = noteToUpdate.sharedWithNames || [];
+    const nextSharedWithNames = [...currentNames];
+    if (nextSharedWithNames.length > targetIndex) {
+      nextSharedWithNames.splice(targetIndex, 1);
+    }
+
+    return setSharedUsers(id, nextSharedWith, nextSharedWithNames);
   };
 
 
