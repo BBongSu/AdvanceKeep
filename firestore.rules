@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 사용자 정보: 본인만 읽기/쓰기 가능
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // 노트: 본인 작성 + 공유받은 노트 읽기 가능
+    match /notes/{noteId} {
+      allow create: if request.auth != null;
+      
+      // 읽기: 소유자(userId)이거나 공유받은 사람(sharedWith에 uid 포함)
+      allow read: if request.auth != null && (
+        resource.data.userId == request.auth.uid ||
+        request.auth.uid in resource.data.sharedWith
+      );
+      
+      // 수정/삭제: 오직 소유자만 가능
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+  }
+}
