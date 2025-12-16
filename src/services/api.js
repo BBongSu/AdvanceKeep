@@ -13,7 +13,10 @@ import {
 
 const NOTES_COLLECTION = 'notes';
 
-// Helper to convert Firestore doc to Note object
+/**
+ * Firestore 문서를 앱에서 사용하는 Note 객체로 변환
+ * - Timestamp 객체를 ISO 문자열로 변환하여 JSON 호환성 유지
+ */
 const docToNote = (doc) => {
   const data = doc.data();
   return {
@@ -27,23 +30,29 @@ const docToNote = (doc) => {
   };
 };
 
+/**
+ * 메모 목록 불러오기
+ * @param {string} userId - 현재 사용자 ID
+ * @returns {Array} 사용자가 작성한 메모 + 공유받은 메모
+ */
 export const fetchNotes = async (userId) => {
   if (!userId) return [];
 
   const notesRef = collection(db, NOTES_COLLECTION);
 
-  // 1. 내가 작성한 메모
+  // 1. 내가 작성한 메모 조회
   const ownedQuery = query(
     notesRef,
     where('userId', '==', userId)
   );
 
-  // 2. 나에게 공유된 메모
+  // 2. 나에게 공유된 메모 조회 ('sharedWith' 배열에 내 ID가 포함된 것)
   const sharedQuery = query(
     notesRef,
     where('sharedWith', 'array-contains', userId)
   );
 
+  // 두 쿼리를 병렬로 실행
   const [ownedSnapshot, sharedSnapshot] = await Promise.all([
     getDocs(ownedQuery),
     getDocs(sharedQuery),
@@ -52,7 +61,7 @@ export const fetchNotes = async (userId) => {
   const ownedNotes = ownedSnapshot.docs.map(docToNote);
   const sharedNotes = sharedSnapshot.docs.map(docToNote);
 
-  // 클라이언트 사이드 병합 및 중복 제거
+  // 결과 병합 및 중복 제거 (혹시 모를 중복 방지)
   const allNotes = [...ownedNotes, ...sharedNotes];
   const uniqueNotesMap = new Map();
 
@@ -63,6 +72,10 @@ export const fetchNotes = async (userId) => {
   return Array.from(uniqueNotesMap.values());
 };
 
+/**
+ * 새 메모 생성
+ * @param {Object} note - 메모 데이터
+ */
 export const createNote = async (note) => {
   // Ensure we have a uid. If note doesn't have it, we can't save it properly for the user.
   // The frontend should pass 'userId' or 'uid' in the note object, 
@@ -77,18 +90,22 @@ export const createNote = async (note) => {
     updatedAt: new Date().toISOString(),
   };
 
-  // Remove id if present before adding (Firestore generates ID)
+  // ID는 Firestore 가 자동으로 생성하므로 데이터에서 제거
   delete noteData.id;
 
   const docRef = await addDoc(collection(db, NOTES_COLLECTION), noteData);
   return { id: docRef.id, ...noteData };
 };
 
+/**
+ * 메모 수정
+ * @param {Object} note - 수정할 메모 데이터 (id 포함)
+ */
 export const updateNote = async (note) => {
   const noteRef = doc(db, NOTES_COLLECTION, note.id);
   const { id, ...updateData } = note;
 
-  // Update timestamp
+  // 수정 시간 업데이트
   updateData.updatedAt = new Date().toISOString();
 
   await updateDoc(noteRef, updateData);
@@ -97,8 +114,11 @@ export const updateNote = async (note) => {
   return { id, ...updateData };
 };
 
+/**
+ * 메모 삭제
+ * @param {string} id - 삭제할 메모 ID
+ */
 export const deleteNote = async (id) => {
   await deleteDoc(doc(db, NOTES_COLLECTION, id));
   return { id }; // Return id to confirm deletion
 };
-

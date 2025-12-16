@@ -7,7 +7,11 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, collection, query, where, getDocs, getDoc } from 'firebase/firestore';
 
-// Helper to format Firebase user object to match app's expected user structure
+/**
+ * Firebase 사용자 객체를 앱에서 사용하는 형태로 변환
+ * @param {Object} user - Firebase User 객체
+ * @returns {Object} 앱 사용자 객체
+ */
 const formatUser = (user) => {
   return {
     id: user.uid,
@@ -16,16 +20,24 @@ const formatUser = (user) => {
   };
 };
 
+/**
+ * 회원가입 함수
+ * 1. Firebase Auth에 계정 생성
+ * 2. 사용자 프로필(이름) 업데이트
+ * 3. Firestore 'users' 컬렉션에 사용자 정보 저장 (사용자 검색용)
+ */
 export const registerUser = async ({ name, email, password }) => {
   try {
+    // 1. 계정 생성
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
+    // 2. 프로필 업데이트
     await updateProfile(user, {
       displayName: name,
     });
 
-    // Save user info to Firestore for searching by email
+    // 3. Firestore에 사용자 정보 저장
     await setDoc(doc(db, 'users', user.uid), {
       uid: user.uid,
       name: name,
@@ -42,19 +54,21 @@ export const registerUser = async ({ name, email, password }) => {
   }
 };
 
-
-
+/**
+ * 로그인 함수
+ * - 로그인 성공 시 Firestore에 사용자 정보가 없으면 자동 생성 (자기 복구 로직)
+ */
 export const loginUser = async (email, password) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Check if user exists in Firestore (Migration/Self-repair)
+    // Firestore에 사용자 정보가 있는지 확인 (기존 계정 호환성 및 복구용)
     const userDocRef = doc(db, 'users', user.uid);
     const userSnapshot = await getDoc(userDocRef);
 
     if (!userSnapshot.exists()) {
-      // If missing, create it now
+      // 정보가 없으면 새로 생성
       await setDoc(userDocRef, {
         uid: user.uid,
         name: user.displayName || user.email.split('@')[0],
@@ -72,11 +86,18 @@ export const loginUser = async (email, password) => {
   }
 };
 
+/**
+ * 로그아웃 함수
+ */
 export const logoutUser = async () => {
   await firebaseSignOut(auth);
 };
 
-// Re-implemented for sharing feature
+/**
+ * 이메일로 사용자 찾기 (공유 기능용)
+ * @param {string} email - 검색할 이메일
+ * @returns {Object|null} 찾은 사용자 정보 또는 null
+ */
 export const findUserByEmail = async (email) => {
   const usersRef = collection(db, 'users');
   const q = query(usersRef, where('email', '==', email));
@@ -94,7 +115,7 @@ export const findUserByEmail = async (email) => {
   };
 };
 
-// Optional: If you need to check session state directly
+// 현재 로그인된 사용자 확인 (세션 체크용)
 export const getCurrentUser = () => {
   const user = auth.currentUser;
   return user ? formatUser(user) : null;
