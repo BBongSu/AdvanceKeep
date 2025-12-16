@@ -19,6 +19,8 @@ const app = initializeApp(firebaseConfig);
 
 // 다른 파일에서 사용할 수 있도록 인증(Auth) 및 데이터베이스(Firestore) 객체 내보내기
 export const auth = getAuth(app);
+auth.languageCode = 'ko'; // 이메일 템플릿 언어를 한국어로 설정
+
 export const db = getFirestore(app);
 
 export default app;

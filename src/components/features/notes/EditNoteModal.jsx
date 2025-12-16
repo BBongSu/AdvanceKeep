@@ -65,8 +65,15 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
     }
   };
 
+  const mouseDownTarget = React.useRef(null);
+
+  const handleMouseDown = (e) => {
+    mouseDownTarget.current = e.target;
+  };
+
   const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
+    // 마우스가 오버레이에서 시작해서 오버레이에서 끝난 경우에만 닫기 (드래그 방지)
+    if (e.target === e.currentTarget && mouseDownTarget.current === e.currentTarget) {
       onClose();
     }
   };
@@ -87,7 +94,7 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
   }, [onClose]);
 
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
+    <div className="modal-overlay" onClick={handleOverlayClick} onMouseDown={handleMouseDown}>
       <div
         className="modal-content"
         style={{ backgroundColor: note.color || 'var(--bg-secondary)' }}

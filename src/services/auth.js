@@ -115,6 +115,24 @@ export const findUserByEmail = async (email) => {
   };
 };
 
+/**
+ * 이름으로 이메일 찾기
+ * @param {string} name - 찾을 사용자 이름
+ * @returns {Array} 찾은 이메일 목록 (동명이인 가능성)
+ */
+export const findEmailByName = async (name) => {
+  const usersRef = collection(db, 'users');
+  const q = query(usersRef, where('name', '==', name));
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    return [];
+  }
+
+  // 동명이인이 있을 수 있으므로 배열로 반환
+  return querySnapshot.docs.map(doc => doc.data().email);
+};
+
 // 현재 로그인된 사용자 확인 (세션 체크용)
 export const getCurrentUser = () => {
   const user = auth.currentUser;
