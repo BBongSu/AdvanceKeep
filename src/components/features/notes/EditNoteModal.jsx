@@ -90,11 +90,19 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
   };
 
   useEffect(() => {
+    // 모달 열릴 때 body 스크롤 방지
+    document.body.style.overflow = 'hidden';
+
     const handleEsc = (e) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
+
+    return () => {
+      // 모달 닫힐 때 스크롤 복원
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleEsc);
+    };
   }, [onClose]);
 
   return (

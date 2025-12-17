@@ -1159,6 +1159,7 @@ input:disabled {
   z-index: 1200;
   backdrop-filter: blur(2px);
   animation: fadeIn 0.2s ease;
+  overflow: hidden;
 }
 
 .modal-content {
