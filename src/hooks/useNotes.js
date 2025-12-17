@@ -229,6 +229,18 @@ export const useNotes = () => {
   };
 
   /**
+   * 메모 고정/해제 토글
+   * @param {string} id - 메모 ID
+   */
+  const togglePin = async (id) => {
+    const noteToToggle = notes.find((n) => n.id === id);
+    if (!noteToToggle) return;
+
+    const updatedNote = { ...noteToToggle, isPinned: !noteToToggle.isPinned };
+    await updateNote(updatedNote);
+  };
+
+  /**
    * 공유 대상 사용자 목록을 한번에 설정
    * - 소유자는 전체 목록 변경 가능
    * - 공유받은 사용자는 본인 제거만 가능
@@ -498,6 +510,7 @@ export const useNotes = () => {
     restoreNote,
     archiveNote,
     unarchiveNote,
+    togglePin,
     setSharedUsers,
     shareNoteWithEmail,
     unshareNote,

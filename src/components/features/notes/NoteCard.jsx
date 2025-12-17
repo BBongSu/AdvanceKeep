@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { FiEdit2, FiX, FiRefreshCw, FiTrash2, FiArchive, FiShare2, FiUserX } from 'react-icons/fi';
-import { HighlightText } from '../../../utils/HighlightText';
+import { BsPin, BsPinFill } from 'react-icons/bs';
+import { HighlightText } from '../../common/HighlightText';
 
 
 /**
@@ -14,6 +15,7 @@ function NoteCard({
     onRestore,
     onArchive,
     onShareToggle,
+    onPin,
     addingNote,
     isTrash,
     isArchived,
@@ -48,6 +50,7 @@ function NoteCard({
                 }
             }}
         >
+            {/* 공유 상태 배지 표시 */}
             {(sharedWithMe || (note.sharedWith && note.sharedWith.length > 0)) && (
                 <div className={`note-share-badge ${sharedWithMe ? 'shared-with-me' : ''}`}>
                     {sharedWithMe
@@ -58,6 +61,23 @@ function NoteCard({
                         }에게 공유함`
                     }
                 </div>
+            )}
+
+
+
+            {/* 고정 핀 버튼 */}
+            {!isTrash && !addingNote && onPin && (
+                <button
+                    className={`pin-btn ${note.isPinned ? 'pinned' : ''}`}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onPin(note.id);
+                    }}
+                    title={note.isPinned ? "고정 해제" : "메모 고정"}
+                    aria-label={note.isPinned ? "고정 해제" : "메모 고정"}
+                >
+                    {note.isPinned ? <BsPinFill size={20} /> : <BsPin size={20} />}
+                </button>
             )}
 
             {note.title && (
@@ -99,6 +119,7 @@ function NoteCard({
                 </button>
             )}
 
+            {/* 액션 버튼 영역 */}
             <div className="note-card-actions">
                 {isTrash ? (
                     <>
@@ -134,6 +155,7 @@ function NoteCard({
                             }}
                             className="note-action-btn btn-edit"
                             disabled={addingNote}
+                            title="수정"
                             aria-label="메모 수정"
                         >
                             <FiEdit2 size={18} />
@@ -181,6 +203,7 @@ function NoteCard({
                             }}
                             className="note-action-btn btn-delete"
                             disabled={addingNote}
+                            title="삭제"
                             aria-label="메모 삭제"
                         >
                             <FiX size={18} />

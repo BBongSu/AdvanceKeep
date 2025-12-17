@@ -489,6 +489,35 @@ body {
   width: 100%;
 }
 
+/* Staggered animation for notes */
+.notes-grid .note-card:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.notes-grid .note-card:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.notes-grid .note-card:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.notes-grid .note-card:nth-child(4) {
+  animation-delay: 0.15s;
+}
+
+.notes-grid .note-card:nth-child(5) {
+  animation-delay: 0.2s;
+}
+
+.notes-grid .note-card:nth-child(6) {
+  animation-delay: 0.25s;
+}
+
+.notes-grid .note-card:nth-child(n+7) {
+  animation-delay: 0.3s;
+}
+
 .notes-grid.list-view {
   display: flex;
   flex-direction: column;
@@ -506,17 +535,17 @@ body {
 
 .note-card {
   position: relative;
-  padding: 56px 20px 20px 20px;
+  padding: 56px 20px 60px 20px;
   /* 상단 여백을 넉넉히 줘서 버튼이 제목을 가리지 않도록 조정 */
   border-radius: 12px;
   box-shadow: 0 4px 10px var(--shadow);
-  transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, opacity 0.3s ease;
   min-height: 120px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  animation: fadeInUp 0.3s ease-out;
+  animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   break-inside: avoid;
   /* 컬럼 레이아웃에서 카드가 쪼개지지 않도록 */
   page-break-inside: avoid;
@@ -527,12 +556,24 @@ body {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
 
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -623,6 +664,51 @@ body {
 .delete-btn:hover {
   background: rgba(255, 0, 0, 0.2);
   color: #d32f2f;
+}
+
+.pin-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s, color 0.2s;
+  z-index: 5;
+}
+
+.note-card:hover .pin-btn,
+.pin-btn.pinned {
+  opacity: 1;
+}
+
+.pin-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--text-primary);
+}
+
+.pin-btn.pinned {
+  color: var(--text-primary);
+}
+
+/* Adjust delete button position if pin button exists, or just ensure they don't overlap.
+   The pin button is at top-right. Delete button is also at top-right in existing CSS?
+   Checking existing delete-btn styles... it is top: 8px, right: 8px.
+   We need to move one of them. Let's move delete-btn to the left of pin-btn or move pin-btn.
+   Google Keep has Pin at top-right. Delete is usually in the menu.
+   In this app, Delete is an icon on hover. I'll move Delete to right: 40px.
+*/
+.delete-btn {
+  right: 44px;
+  /* Move delete button to the left of pin button */
 }
 
 .loading {
@@ -910,7 +996,8 @@ input:disabled {
 /* Note card action buttons */
 .note-card-actions {
   position: absolute;
-  top: 12px;
+  top: auto;
+  bottom: 12px;
   right: 12px;
   display: flex;
   gap: 8px;
@@ -1528,9 +1615,35 @@ input:disabled {
     max-width: calc(100% - 30px);
     /* Leave space for delete button if visible */
   }
+
+  /* Optimize section containers for mobile */
+  .notes-section {
+    padding: 12px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+  }
+
+  .notes-section .section-header {
+    margin: 0 0 12px 0;
+  }
+
+  .notes-section .section-title {
+    font-size: 11px;
+  }
 }
 
 .highlight {
   background-color: #fcff35;
   color: #202124;
+}
+
+/* Simple section titles for pinned/other notes */
+.section-title-simple {
+  width: 100%;
+  max-width: 720px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
 }

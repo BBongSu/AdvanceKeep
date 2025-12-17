@@ -24,6 +24,7 @@ function Home() {
         archiveNote,
         shareNoteWithEmail,
         unshareNoteWithEmail,
+        togglePin,
     } = useNotes();
     const [editingNote, setEditingNote] = useState(null);
     const [addingNote, setAddingNote] = useState(false);
@@ -35,6 +36,42 @@ function Home() {
     // 휴지통과 보관함에 있지 않은 활성 메모만 필터링
     const activeNotes = notes.filter(note => !note.inTrash && !note.isArchived);
     const filteredNotes = useSearch(activeNotes, searchQuery);
+
+    // 고정된 메모와 일반 메모 분리
+    const pinnedNotes = filteredNotes.filter(note => note.isPinned);
+    const otherNotes = filteredNotes.filter(note => !note.isPinned);
+
+    /**
+     * 메모가 현재 사용자와 공유되었는지 확인
+     * @param {Object} note - 확인할 메모 객체
+     * @returns {boolean} 공유됨 여부
+     */
+    const isSharedWithMe = (note) => {
+        return note.userId !== user?.id &&
+            note.ownerId !== user?.id &&
+            (note.sharedWith || []).includes(user?.id);
+    };
+
+    /**
+     * 메모 카드를 렌더링하는 헬퍼 함수
+     * @param {Object} note - 렌더링할 메모 객체
+     * @returns {JSX.Element} 렌더링된 NoteCard 컴포넌트
+     */
+    const renderNoteCard = (note) => (
+        <NoteCard
+            key={note.id}
+            note={note}
+            onEdit={setEditingNote}
+            onDelete={handleDeleteNote}
+            onArchive={handleArchiveNote}
+            onShareToggle={handleShareToggle}
+            onPin={togglePin}
+            isOwner={note.userId === user?.id || note.ownerId === user?.id}
+            sharedWithMe={isSharedWithMe(note)}
+            addingNote={addingNote}
+            searchQuery={searchQuery}
+        />
+    );
 
     /**
      * 새 메모 추가 핸들러
@@ -207,26 +244,27 @@ function Home() {
             <NoteForm onAdd={handleAddNote} addingNote={addingNote} />
 
             {/* 메모 그리드 */}
-            <div className={`notes-grid ${viewMode === 'list' ? 'list-view' : ''}`}>
-                {filteredNotes.map((note) => (
-                    <NoteCard
-                        key={note.id}
-                        note={note}
-                        onEdit={setEditingNote}
-                        onDelete={handleDeleteNote}
-                        onArchive={handleArchiveNote}
-                        onShareToggle={handleShareToggle}
-                        isOwner={note.userId === user?.id || note.ownerId === user?.id}
-                        sharedWithMe={
-                            note.userId !== user?.id &&
-                            note.ownerId !== user?.id &&
-                            (note.sharedWith || []).includes(user?.id)
-                        }
-                        addingNote={addingNote}
-                        searchQuery={searchQuery}
-                    />
-                ))}
-            </div>
+            {pinnedNotes.length > 0 ? (
+                <>
+                    <h6 className="section-title-simple">고정됨</h6>
+                    <div className={`notes-grid ${viewMode === 'list' ? 'list-view' : ''}`}>
+                        {pinnedNotes.map(renderNoteCard)}
+                    </div>
+
+                    {otherNotes.length > 0 && (
+                        <>
+                            <h6 className="section-title-simple" style={{ marginTop: '32px' }}>기타</h6>
+                            <div className={`notes-grid ${viewMode === 'list' ? 'list-view' : ''}`}>
+                                {otherNotes.map(renderNoteCard)}
+                            </div>
+                        </>
+                    )}
+                </>
+            ) : (
+                <div className={`notes-grid ${viewMode === 'list' ? 'list-view' : ''}`}>
+                    {otherNotes.map(renderNoteCard)}
+                </div>
+            )}
 
             {/* 빈 상태 메시지 */}
             {isEmpty && (
