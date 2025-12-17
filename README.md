@@ -64,20 +64,22 @@ npm start
 ```
 AdvanceKeep/
 ├── public/              # 정적 파일 (이미지, 아이콘 등)
-├── server/              # 백엔드 관련 파일 (db.json 등)
 ├── src/
 │   ├── assets/          # 프로젝트 내에서 사용되는 이미지 및 리소스
 │   ├── components/      # 재사용 가능한 UI 컴포넌트
 │   │   ├── common/      # 공통 컴포넌트 (버튼, 입력창 등)
 │   │   ├── features/    # 기능별 컴포넌트 (메모 카드, 폼 등)
 │   │   └── layout/      # 레이아웃 컴포넌트 (헤더, 사이드바 등)
+│   ├── constants/       # 상수 설정 (index.js)
 │   ├── hooks/           # 커스텀 React Hooks (useNotes, useSearch 등)
 │   ├── pages/           # 라우팅 페이지 (Home, Archive, Trash 등)
 │   ├── services/        # API 통신 및 비즈니스 로직 (api.js, auth.js)
 │   ├── utils/           # 유틸리티 함수
 │   ├── App.jsx          # 메인 앱 컴포넌트
+│   └── main.css         # 메인 css
 │   └── main.jsx         # 진입점 (Entry Point)
 ├── index.html           # HTML 템플릿
 ├── package.json         # 프로젝트 의존성 및 스크립트 설정
+├── firebase.json        # FireBase 설정
 └── vite.config.js       # Vite 설정 파일
 ```
