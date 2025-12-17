@@ -1512,3 +1512,19 @@ input:disabled {
   background: var(--hover-bg);
   transform: translateY(-1px);
 }
+
+/* Fix for share badge overlap on mobile */
+@media (max-width: 768px) {
+  .note-card {
+    padding-top: 20px;
+  }
+
+  .note-share-badge {
+    position: relative;
+    top: auto;
+    left: auto;
+    display: inline-block;
+    margin-bottom: 8px;
+    max-width: calc(100% - 30px); /* Leave space for delete button if visible */
+  }
+}
