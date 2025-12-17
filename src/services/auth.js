@@ -4,8 +4,6 @@ import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   updateProfile,
-  setPersistence,
-  browserSessionPersistence,
 } from 'firebase/auth';
 import { doc, setDoc, collection, query, where, getDocs, getDoc } from 'firebase/firestore';
 
@@ -62,9 +60,6 @@ export const registerUser = async ({ name, email, password }) => {
  */
 export const loginUser = async (email, password) => {
   try {
-    // 세션 지속성 설정: 브라우저 닫으면 로그아웃
-    await setPersistence(auth, browserSessionPersistence);
-
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 

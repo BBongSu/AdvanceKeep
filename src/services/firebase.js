@@ -1,6 +1,6 @@
 // Firebase 앱 초기화 및 필요한 SDK 모듈 가져오기
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserSessionPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // Firebase 프로젝트 설정 정보
@@ -20,6 +20,12 @@ const app = initializeApp(firebaseConfig);
 // 다른 파일에서 사용할 수 있도록 인증(Auth) 및 데이터베이스(Firestore) 객체 내보내기
 export const auth = getAuth(app);
 auth.languageCode = 'ko'; // 이메일 템플릿 언어를 한국어로 설정
+
+// 브라우저 세션 지속성 설정: 브라우저를 닫으면 로그아웃
+// 이 설정은 Firebase 초기화 시점에 적용되어야 합니다
+setPersistence(auth, browserSessionPersistence).catch((error) => {
+  console.error('세션 지속성 설정 실패:', error);
+});
 
 export const db = getFirestore(app);
 

@@ -5,10 +5,10 @@ import { loginUser, registerUser } from '../services/auth';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  // 앱 시작 시 저장된 로그인 정보 불러오기 (없으면 null)
+  // 앱 시작 시 저장된 로그인 정보 불러오기 (sessionStorage 사용 - 브라우저 종료 시 삭제됨)
   const [user, setUser] = useState(() => {
-    if (typeof localStorage === 'undefined') return null;
-    const stored = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (typeof sessionStorage === 'undefined') return null;
+    const stored = sessionStorage.getItem(AUTH_STORAGE_KEY);
     return stored ? JSON.parse(stored) : null;
   });
   const [loading, setLoading] = useState(false);
@@ -19,13 +19,13 @@ export const AuthProvider = ({ children }) => {
     setReady(true);
   }, []);
 
-  // 로그인 상태 변동 시 로컬에 동기화
+  // 로그인 상태 변동 시 sessionStorage에 동기화 (브라우저 종료 시 자동 삭제)
   useEffect(() => {
-    if (typeof localStorage === 'undefined') return;
+    if (typeof sessionStorage === 'undefined') return;
     if (user) {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+      sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
     } else {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
     }
   }, [user]);
 
