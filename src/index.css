@@ -993,7 +993,7 @@ input:disabled {
   box-shadow: 0 2px 6px var(--shadow);
 }
 
-/* Note card action buttons */
+/* 메모 카드 동작 버튼 */
 .note-card-actions {
   position: absolute;
   top: auto;
@@ -1034,35 +1034,35 @@ input:disabled {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Edit Button */
+/* 수정 버튼 */
 .btn-edit:hover {
   background-color: rgba(33, 150, 243, 0.1);
   color: #2196f3;
   border-color: rgba(33, 150, 243, 0.3);
 }
 
-/* Delete Button */
+/* 삭제 버튼 */
 .btn-delete:hover {
   background-color: rgba(244, 67, 54, 0.1);
   color: #f44336;
   border-color: rgba(244, 67, 54, 0.3);
 }
 
-/* Restore Button */
+/* 보관함 버튼 */
 .btn-restore:hover {
   background-color: rgba(76, 175, 80, 0.1);
   color: #4caf50;
   border-color: rgba(76, 175, 80, 0.3);
 }
 
-/* Delete Forever Button */
+/* 영구 삭제 버튼 */
 .btn-delete-forever:hover {
   background-color: rgba(211, 47, 47, 0.1);
   color: #d32f2f;
   border-color: rgba(211, 47, 47, 0.3);
 }
 
-/* Archive Button */
+/* 휴지통 버튼 */
 .btn-archive:hover {
   background-color: rgba(255, 152, 0, 0.1);
   color: #ff9800;
@@ -1081,7 +1081,7 @@ input:disabled {
   border-color: rgba(102, 126, 234, 0.3);
 }
 
-/* Unarchive Button */
+/* 복구 버튼 */
 .btn-unarchive:hover {
   background-color: rgba(255, 152, 0, 0.1);
   color: #ff9800;
@@ -1089,7 +1089,7 @@ input:disabled {
 }
 
 
-/* Dark Mode Adjustments */
+/* 다크모드 조정 */
 .dark-mode .note-card-actions {
   background: rgba(48, 49, 52, 0.9);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -1148,7 +1148,7 @@ input:disabled {
   border-color: rgba(255, 183, 77, 0.5);
 }
 
-/* Modal */
+/* 모달창 */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -1247,7 +1247,7 @@ input:disabled {
   background: #5568d3;
 }
 
-/* SweetAlert2 Overrides */
+/* SweetAlert2 */
 .swal2-popup {
   background: var(--bg-secondary) !important;
   color: var(--text-primary) !important;
@@ -1292,7 +1292,7 @@ input:disabled {
   color: var(--text-primary) !important;
 }
 
-/* Responsive Layouts */
+/* 반응형 레이아웃 */
 @media (max-width: 1024px) {
   .main {
     padding: 16px;
@@ -1601,7 +1601,7 @@ input:disabled {
   transform: translateY(-1px);
 }
 
-/* Fix for share badge overlap on mobile */
+/* 모바일에서 삭제,핀고정 버튼 겹침 문제 해결 */
 @media (max-width: 768px) {
   .note-card {
     padding-top: 20px;
@@ -1614,10 +1614,9 @@ input:disabled {
     display: inline-block;
     margin-bottom: 8px;
     max-width: calc(100% - 30px);
-    /* Leave space for delete button if visible */
   }
 
-  /* Optimize section containers for mobile */
+  /* 모바일 최적화 */
   .notes-section {
     padding: 12px;
     margin-bottom: 16px;
@@ -1638,7 +1637,7 @@ input:disabled {
   color: #202124;
 }
 
-/* Simple section titles for pinned/other notes */
+/* 고정됨/기타 노트 제목 설정 */
 .section-title-simple {
   width: 100%;
   max-width: 720px;
