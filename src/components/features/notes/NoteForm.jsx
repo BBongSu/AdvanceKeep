@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { FiImage, FiPlus, FiX, FiLoader } from 'react-icons/fi';
 import { useImageUpload } from '../../../hooks/useImageUpload';
+import Lightbox from 'yet-another-react-lightbox';
+import 'yet-another-react-lightbox/styles.css';
 
 function NoteForm({ onAdd, addingNote }) {
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const { selectedImages, handleImageSelect, clearImages, removeImage, uploading } = useImageUpload();
 
   const handleImageChange = (e) => {
@@ -103,7 +107,15 @@ function NoteForm({ onAdd, addingNote }) {
         <div className="image-preview-container">
           {selectedImages.map((img, idx) => (
             <div className="image-preview" key={`preview-${idx}`}>
-              <img src={img} alt="Preview" />
+              <img
+                src={img}
+                alt="Preview"
+                onClick={() => {
+                  setLightboxIndex(idx);
+                  setLightboxOpen(true);
+                }}
+                style={{ cursor: 'pointer' }}
+              />
               <button
                 type="button"
                 onClick={() => removeImage(idx)}
@@ -142,6 +154,14 @@ function NoteForm({ onAdd, addingNote }) {
           </button>
         </div>
       </div>
+
+      {/* 이미지 라이트박스 */}
+      <Lightbox
+        open={lightboxOpen}
+        close={() => setLightboxOpen(false)}
+        slides={selectedImages.map(img => ({ src: img }))}
+        index={lightboxIndex}
+      />
     </form>
   );
 }

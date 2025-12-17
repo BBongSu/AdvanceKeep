@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { FiEdit2, FiX, FiRefreshCw, FiTrash2, FiArchive, FiShare2, FiUserX } from 'react-icons/fi';
 import { BsPin, BsPinFill } from 'react-icons/bs';
 import { HighlightText } from '../../common/HighlightText';
+import Lightbox from 'yet-another-react-lightbox';
+import 'yet-another-react-lightbox/styles.css';
 
 
 /**
@@ -30,11 +32,26 @@ function NoteCard({
             ? [note.image]
             : [];
     const [expanded, setExpanded] = useState(false);
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [lightboxIndex, setLightboxIndex] = useState(0);
 
     const isLongText = useMemo(() => (note.text ? note.text.length > 200 : false), [note.text]);
     const hasManyImages = images.length > 2;
     const shouldCollapse = !expanded && (isLongText || hasManyImages);
     const useHorizontalGallery = images.length > 2;
+
+    /**
+     * 이미지 클릭 핸들러 - 라이트박스 열기
+     * @param {number} index - 클릭한 이미지의 인덱스
+     */
+    const handleImageClick = (e, index) => {
+        e.stopPropagation(); // 메모 편집 모달 열리지 않도록 방지
+        setLightboxIndex(index);
+        setLightboxOpen(true);
+    };
+
+    // 라이트박스용 이미지 배열 변환
+    const lightboxSlides = images.map(img => ({ src: img }));
 
     return (
         <div
@@ -92,7 +109,20 @@ function NoteCard({
                         }`}
                 >
                     {images.map((img, idx) => (
-                        <div className="note-image-multi" key={`${note.id}-img-${idx}`}>
+                        <div
+                            className="note-image-multi"
+                            key={`${note.id}-img-${idx}`}
+                            onClick={(e) => handleImageClick(e, idx)}
+                            style={{ cursor: 'pointer' }}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    handleImageClick(e, idx);
+                                }
+                            }}
+                        >
                             <img src={img} alt="Note attachment" />
                         </div>
                     ))}
@@ -211,6 +241,14 @@ function NoteCard({
                     </>
                 )}
             </div>
+
+            {/* 이미지 라이트박스 */}
+            <Lightbox
+                open={lightboxOpen}
+                close={() => setLightboxOpen(false)}
+                slides={lightboxSlides}
+                index={lightboxIndex}
+            />
         </div>
     );
 }

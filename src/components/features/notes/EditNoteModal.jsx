@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { FiImage, FiX } from 'react-icons/fi';
 import { useImageUpload } from '../../../hooks/useImageUpload';
+import Lightbox from 'yet-another-react-lightbox';
+import 'yet-another-react-lightbox/styles.css';
 
 const EditNoteModal = ({ note, onUpdate, onClose }) => {
   const [title, setTitle] = useState(note.title || '');
   const [text, setText] = useState(note.text || '');
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const { selectedImages, handleImageSelect, clearImages, removeImage } = useImageUpload(
     Array.isArray(note.images) ? note.images : note.image ? [note.image] : []
   );
@@ -102,7 +106,15 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
         <div className="image-preview-container">
           {selectedImages.map((img, idx) => (
             <div className="image-preview" key={`edit-preview-${idx}`}>
-              <img src={img} alt="Preview" />
+              <img
+                src={img}
+                alt="Preview"
+                onClick={() => {
+                  setLightboxIndex(idx);
+                  setLightboxOpen(true);
+                }}
+                style={{ cursor: 'pointer' }}
+              />
               <button
                 type="button"
                 onClick={() => removeImage(idx)}
@@ -151,6 +163,14 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
           <button className="close-btn" onClick={onClose}>취소</button>
           <button className="close-btn primary" onClick={handleSave}>저장</button>
         </div>
+
+        {/* 이미지 라이트박스 */}
+        <Lightbox
+          open={lightboxOpen}
+          close={() => setLightboxOpen(false)}
+          slides={selectedImages.map(img => ({ src: img }))}
+          index={lightboxIndex}
+        />
       </div>
     </div>
   );
