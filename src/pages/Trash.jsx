@@ -66,6 +66,7 @@ function Trash() {
                         isTrash={true}
                         onRestore={handleRestore}
                         onDelete={handleDeleteForever}
+                        searchQuery={searchQuery}
                     />
                 ))}
             </div>

@@ -1525,6 +1525,12 @@ input:disabled {
     left: auto;
     display: inline-block;
     margin-bottom: 8px;
-    max-width: calc(100% - 30px); /* Leave space for delete button if visible */
+    max-width: calc(100% - 30px);
+    /* Leave space for delete button if visible */
   }
+}
+
+.highlight {
+  background-color: #fcff35;
+  color: #202124;
 }

@@ -62,6 +62,7 @@ function Archive() {
                         onArchive={handleUnarchiveNote}
                         addingNote={addingNote}
                         isArchived={true}
+                        searchQuery={searchQuery}
                     />
                 ))}
             </div>

@@ -223,6 +223,7 @@ function Home() {
                             (note.sharedWith || []).includes(user?.id)
                         }
                         addingNote={addingNote}
+                        searchQuery={searchQuery}
                     />
                 ))}
             </div>

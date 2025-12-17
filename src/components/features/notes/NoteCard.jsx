@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { FiEdit2, FiX, FiRefreshCw, FiTrash2, FiArchive, FiShare2, FiUserX } from 'react-icons/fi';
+import { HighlightText } from '../../../utils/HighlightText';
+
 
 /**
  * 메모 카드 컴포넌트
@@ -17,6 +19,7 @@ function NoteCard({
     isArchived,
     isOwner,
     sharedWithMe,
+    searchQuery,
 }) {
     // 단일 image 필드를 가진 기존 데이터도 images 배열로 호환
     const images = Array.isArray(note.images)
@@ -58,7 +61,9 @@ function NoteCard({
             )}
 
             {note.title && (
-                <h3 className="note-title">{note.title}</h3>
+                <h3 className="note-title">
+                    <HighlightText text={note.title} highlight={searchQuery} />
+                </h3>
             )}
 
             {images.length > 0 && (
@@ -76,7 +81,7 @@ function NoteCard({
 
             {note.text && (
                 <p className={`note-text ${shouldCollapse && isLongText ? 'collapsed-text' : ''}`}>
-                    {note.text}
+                    <HighlightText text={note.text} highlight={searchQuery} />
                 </p>
             )}
 
