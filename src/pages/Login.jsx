@@ -13,6 +13,8 @@ const Login = () => {
   const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '' });
 
+  const [stayLoggedIn, setStayLoggedIn] = useState(false);
+
   const from = location.state?.from || '/';
 
   React.useEffect(() => {
@@ -29,7 +31,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(form.email, form.password);
+      await login(form.email, form.password, stayLoggedIn);
       await Swal.fire({
         icon: 'success',
         title: '로그인 완료',
@@ -154,6 +156,19 @@ const Login = () => {
             required
             minLength={6}
           />
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+            <input
+              id="stayLoggedIn"
+              type="checkbox"
+              checked={stayLoggedIn}
+              onChange={(e) => setStayLoggedIn(e.target.checked)}
+              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+            />
+            <label htmlFor="stayLoggedIn" style={{ fontSize: '14px', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+              로그인 상태 유지
+            </label>
+          </div>
 
           <button className="auth-submit" type="submit" disabled={loading}>
             {loading ? '로그인 중...' : '로그인'}

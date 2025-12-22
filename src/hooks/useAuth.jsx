@@ -1,15 +1,20 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AUTH_STORAGE_KEY } from '../constants';
 import { loginUser, registerUser } from '../services/auth';
+import { setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
+import { auth as firebaseAuth } from '../services/firebase';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  // 앱 시작 시 저장된 로그인 정보 불러오기 (sessionStorage 사용 - 브라우저 종료 시 삭제됨)
+  // 앱 시작 시 저장된 로그인 정보 불러오기 (localStorage -> 없으면 sessionStorage 순으로 확인)
   const [user, setUser] = useState(() => {
-    if (typeof sessionStorage === 'undefined') return null;
-    const stored = sessionStorage.getItem(AUTH_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : null;
+    if (typeof window === 'undefined') return null;
+    const localStored = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (localStored) return JSON.parse(localStored);
+
+    const sessionStored = sessionStorage.getItem(AUTH_STORAGE_KEY);
+    return sessionStored ? JSON.parse(sessionStored) : null;
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -19,22 +24,33 @@ export const AuthProvider = ({ children }) => {
     setReady(true);
   }, []);
 
-  // 로그인 상태 변동 시 sessionStorage에 동기화 (브라우저 종료 시 자동 삭제)
-  useEffect(() => {
-    if (typeof sessionStorage === 'undefined') return;
-    if (user) {
-      sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
-    } else {
-      sessionStorage.removeItem(AUTH_STORAGE_KEY);
-    }
-  }, [user]);
+  // 로그아웃 시 모든 저장소 정리
+  const clearAuthStorage = () => {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
+  };
 
   // 로그인 처리
-  const login = async (email, password) => {
+  const login = async (email, password, stayLoggedIn = false) => {
     setLoading(true);
     setError(null);
     try {
+      // Firebase 지속성 설정 적용
+      const persistence = stayLoggedIn ? browserLocalPersistence : browserSessionPersistence;
+      await setPersistence(firebaseAuth, persistence);
+
       const loggedInUser = await loginUser(email, password);
+
+      // 사용자 선택에 따라 저장소 결정
+      if (stayLoggedIn) {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(loggedInUser));
+        sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      } else {
+        sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(loggedInUser));
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+      }
+
       setUser(loggedInUser);
       return loggedInUser;
     } catch (err) {
@@ -62,6 +78,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    clearAuthStorage();
     setUser(null);
   };
 

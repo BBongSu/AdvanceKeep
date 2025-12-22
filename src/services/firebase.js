@@ -21,11 +21,14 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 auth.languageCode = 'ko'; // 이메일 템플릿 언어를 한국어로 설정
 
-// 브라우저 세션 지속성 설정: 브라우저를 닫으면 로그아웃
-// 이 설정은 Firebase 초기화 시점에 적용되어야 합니다
+// 브라우저 세션 지속성 설정: 브라우저를 닫으면 로그아웃 (기본값)
+// 이 설정은 이제 useAuth.jsx의 login 함수에서 사용자의 선택에 따라 동적으로 처리됩니다.
+// 초기값 설정을 유지하고 싶다면 아래 주석을 해제할 수 있습니다.
+/*
 setPersistence(auth, browserSessionPersistence).catch((error) => {
   console.error('세션 지속성 설정 실패:', error);
 });
+*/
 
 export const db = getFirestore(app);
 
