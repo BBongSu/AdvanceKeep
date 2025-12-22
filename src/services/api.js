@@ -34,44 +34,6 @@ const docToNote = (doc) => {
   };
 };
 
-/**
- * 메모 목록 불러오기
- * @param {string} userId - 현재 사용자 ID
- * @returns {Array} 사용자가 작성한 메모 + 공유받은 메모
- */
-export const fetchNotes = async (userId) => {
-  if (!userId) return [];
-
-  const notesRef = collection(db, NOTES_COLLECTION);
-
-  // 1. 내가 작성한 메모 조회
-  const ownedQuery = query(
-    notesRef,
-    where('userId', '==', userId)
-  );
-
-  // 2. 나에게 공유된 메모 조회 ('sharedWith' 배열에 내 ID가 포함된 것)
-  const sharedQuery = query(
-    notesRef,
-    where('sharedWith', 'array-contains', userId)
-  );
-
-  const [ownedSnapshot, sharedSnapshot] = await Promise.all([
-    getDocs(ownedQuery),
-    getDocs(sharedQuery),
-  ]);
-
-  const ownedNotes = ownedSnapshot.docs.map(docToNote);
-  const sharedNotes = sharedSnapshot.docs.map(docToNote);
-
-  // 결과 병합
-  const allNotes = [...ownedNotes, ...sharedNotes];
-  const uniqueNotesMap = new Map();
-  allNotes.forEach(note => uniqueNotesMap.set(note.id, note));
-  const uniqueNotes = Array.from(uniqueNotesMap.values());
-
-  return enrichNotesWithNames(uniqueNotes);
-};
 
 /**
  * 노트 배열에 작성자 및 공유 대상의 이름 정보를 주입합니다.

@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { fetchNotes, createNote, updateNote as updateNoteAPI, deleteNote as deleteNoteAPI, subscribeNotes } from '../services/api';
+import { createNote, updateNote as updateNoteAPI, deleteNote as deleteNoteAPI, subscribeNotes } from '../services/api';
 import { findUserByEmail } from '../services/auth';
 import { useAuth } from './useAuth';
 
@@ -67,7 +67,7 @@ export const useNotes = () => {
     setLoading(true);
     // 실시간 구독 시작
     const unsubscribe = subscribeNotes(user.id, (realtimeNotes) => {
-      setNotes(filterNotesForUser(realtimeNotes, user.id));
+      setNotes(realtimeNotes);
       setLoading(false);
     });
 
@@ -76,43 +76,7 @@ export const useNotes = () => {
     };
   }, [user?.id]);
 
-  /**
-   * 현재 사용자에게 보이는 노트만 필터링
-   */
-  const filterNotesForUser = (items = [], userId) =>
-    items.filter(
-      (note) =>
-        note.userId === userId ||
-        note.ownerId === userId ||
-        (note.sharedWith || []).includes(userId)
-    );
 
-  /**
-   * 서버에서 메모 불러오기
-   * 실패 시 로컬 스토리지의 메모를 사용
-   */
-  const loadNotes = async () => {
-    if (!user) {
-      setNotes([]);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await fetchNotes(user.id);
-      setNotes(filterNotesForUser(data, user.id));
-    } catch (err) {
-      // 서버 연결 실패 시 로컬 데이터 사용
-      const fallbackNotes = readLocalNotes(user?.id);
-      setNotes(filterNotesForUser(fallbackNotes, user.id));
-      setError('Server unreachable. Showing local notes.');
-      console.error('Load notes failed, using local data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   /**
    * 새 메모 추가
@@ -527,6 +491,5 @@ export const useNotes = () => {
     unshareNote,
     unshareNoteWithEmail,
     deleteForever,
-    loadNotes,
   };
 };
