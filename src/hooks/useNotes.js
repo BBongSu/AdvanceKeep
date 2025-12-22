@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { fetchNotes, createNote, updateNote as updateNoteAPI, deleteNote as deleteNoteAPI } from '../services/api';
+import { fetchNotes, createNote, updateNote as updateNoteAPI, deleteNote as deleteNoteAPI, subscribeNotes } from '../services/api';
 import { findUserByEmail } from '../services/auth';
 import { useAuth } from './useAuth';
 
@@ -59,10 +59,21 @@ export const useNotes = () => {
   const [lastSyncError, setLastSyncError] = useState(null);  // 마지막 동기화 에러
 
   useEffect(() => {
-    setNotes([]);
-    loadNotes();
-    setPendingActions([]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!user?.id) {
+      setNotes([]);
+      return () => { };
+    }
+
+    setLoading(true);
+    // 실시간 구독 시작
+    const unsubscribe = subscribeNotes(user.id, (realtimeNotes) => {
+      setNotes(filterNotesForUser(realtimeNotes, user.id));
+      setLoading(false);
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, [user?.id]);
 
   /**

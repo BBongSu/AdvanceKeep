@@ -12,6 +12,7 @@ import {
   setDoc,
   documentId,
   getDoc,
+  onSnapshot,
 } from 'firebase/firestore';
 
 const NOTES_COLLECTION = 'notes';
@@ -69,10 +70,20 @@ export const fetchNotes = async (userId) => {
   allNotes.forEach(note => uniqueNotesMap.set(note.id, note));
   const uniqueNotes = Array.from(uniqueNotesMap.values());
 
-  // 관련 사용자 정보 가져오기 (이름 표시용)
+  return enrichNotesWithNames(uniqueNotes);
+};
+
+/**
+ * 노트 배열에 작성자 및 공유 대상의 이름 정보를 주입합니다.
+ * @param {Array} notes - 처리할 노트 배열
+ * @returns {Promise<Array>} 이름 정보가 주입된 노트 배열
+ */
+export const enrichNotesWithNames = async (notes) => {
+  if (!notes || notes.length === 0) return [];
+
   // unique UIDs 수집: 작성자(userId) 및 공유 대상(sharedWith)
   const userIdsToFetch = new Set();
-  uniqueNotes.forEach(note => {
+  notes.forEach(note => {
     if (note.userId) userIdsToFetch.add(note.userId);
     if (note.sharedWith && Array.isArray(note.sharedWith)) {
       note.sharedWith.forEach(uid => userIdsToFetch.add(uid));
@@ -81,8 +92,6 @@ export const fetchNotes = async (userId) => {
 
   // 사용자 정보 조회 (캐싱을 위해 Map 사용)
   const userMap = new Map();
-  // 한 번에 가져오기 위해 Promise.all 사용 (in query limit 10 회피 위해 개별 조회 또는 chunk)
-  // 소규모 앱이므로 개별 조회 병렬 처리
   const userPromises = Array.from(userIdsToFetch).map(uid =>
     getDoc(doc(db, 'users', uid)).then(userSnap => {
       if (userSnap.exists()) {
@@ -94,13 +103,10 @@ export const fetchNotes = async (userId) => {
   await Promise.all(userPromises);
 
   // 노트 객체에 이름 정보 주입
-  const enrichedNotes = uniqueNotes.map(note => {
-    // 작성자 이름
+  return notes.map(note => {
     const ownerName = userMap.get(note.userId) || 'Unknown';
-
-    // 공유 대상 이름 목록
     const sharedWithNames = (note.sharedWith || [])
-      .map(uid => userMap.get(uid) || 'Unknown') // 이름 없는 경우 'Unknown' 처리 (인덱스 유지)
+      .map(uid => userMap.get(uid) || 'Unknown');
 
     return {
       ...note,
@@ -108,8 +114,57 @@ export const fetchNotes = async (userId) => {
       sharedWithNames,
     };
   });
+};
 
-  return enrichedNotes;
+/**
+ * 실시간 메모 구독
+ * @param {string} userId - 현재 사용자 ID
+ * @param {function} callback - 데이터 변경 시 실행할 콜백 함수
+ * @returns {function} 구독 해제 함수
+ */
+export const subscribeNotes = (userId, callback) => {
+  if (!userId) return () => { };
+
+  const notesRef = collection(db, NOTES_COLLECTION);
+
+  // 내가 작성한 메모 + 나에게 공유된 메모를 한꺼번에 구독하기 위해 
+  // Firestore의 query 조합 한계를 고려하여 필터를 사용하거나, 
+  // 여기서는 userId가 ownerId 또는 sharedWith에 포함된 문서를 실시간으로 추적합니다.
+  // 참고: 복합 쿼리(OR)는 지원 범위가 한정적이므로, 
+  // 가장 넓은 범위인 '전체'를 구독하고 클라이언트에서 필터링하거나 
+  // 혹은 두 개의 스냅샷 구독을 관리할 수 있습니다.
+
+  // 여기서는 사용자 경험을 위해 두 쿼리를 별도로 구독하고 병합하는 방식을 사용합니다.
+  const ownedQuery = query(notesRef, where('userId', '==', userId));
+  const sharedQuery = query(notesRef, where('sharedWith', 'array-contains', userId));
+
+  let ownedNotes = [];
+  let sharedNotes = [];
+
+  const updateAndNotify = async () => {
+    const allNotes = [...ownedNotes, ...sharedNotes];
+    const uniqueNotesMap = new Map();
+    allNotes.forEach(note => uniqueNotesMap.set(note.id, note));
+
+    // 이름 정보 주입 후 콜백 실행
+    const enriched = await enrichNotesWithNames(Array.from(uniqueNotesMap.values()));
+    callback(enriched);
+  };
+
+  const unsubOwned = onSnapshot(ownedQuery, (snapshot) => {
+    ownedNotes = snapshot.docs.map(docToNote);
+    updateAndNotify();
+  }, (err) => console.error('Owned notes subscription error:', err));
+
+  const unsubShared = onSnapshot(sharedQuery, (snapshot) => {
+    sharedNotes = snapshot.docs.map(docToNote);
+    updateAndNotify();
+  }, (err) => console.error('Shared notes subscription error:', err));
+
+  return () => {
+    unsubOwned();
+    unsubShared();
+  };
 };
 
 /**
