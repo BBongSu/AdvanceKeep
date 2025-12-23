@@ -1,14 +1,31 @@
 import React, { useState } from 'react';
-import { FiImage, FiPlus, FiX, FiLoader } from 'react-icons/fi';
+import { FiImage, FiPlus, FiX, FiLoader, FiDroplet } from 'react-icons/fi';
 import { useImageUpload } from '../../../hooks/useImageUpload';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
+
+const KEEP_COLORS = [
+  { name: 'Default', color: '#ffffff' },
+  { name: 'Red', color: '#f28b82' },
+  { name: 'Orange', color: '#fbbc04' },
+  { name: 'Yellow', color: '#fff475' },
+  { name: 'Green', color: '#ccff90' },
+  { name: 'Teal', color: '#a7ffeb' },
+  { name: 'Blue', color: '#cbf0f8' },
+  { name: 'Dark Blue', color: '#aecbfa' },
+  { name: 'Purple', color: '#d7aefb' },
+  { name: 'Pink', color: '#fdcfe8' },
+  { name: 'Brown', color: '#e6c9a8' },
+  { name: 'Gray', color: '#e8eaed' },
+];
 
 function NoteForm({ onAdd, addingNote }) {
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [color, setColor] = useState('#ffffff');
   const { selectedImages, handleImageSelect, clearImages, removeImage, uploading } = useImageUpload();
 
   const handleImageChange = (e) => {
@@ -26,11 +43,14 @@ function NoteForm({ onAdd, addingNote }) {
       title,
       text,
       images: selectedImages,
+      color,
     };
 
     setTitle('');
     setText('');
     clearImages();
+    setColor('#ffffff');
+    setShowColorPicker(false);
 
     onAdd(noteData);
   };
@@ -78,7 +98,11 @@ function NoteForm({ onAdd, addingNote }) {
   };
 
   return (
-    <form onSubmit={onSubmit} className="input-form">
+    <form
+      onSubmit={onSubmit}
+      className="input-form"
+      style={{ backgroundColor: color }}
+    >
       <div className="input-container">
         <input
           type="text"
@@ -87,6 +111,7 @@ function NoteForm({ onAdd, addingNote }) {
           placeholder="제목"
           className="note-title-input"
           disabled={addingNote}
+          style={{ backgroundColor: 'transparent' }}
         />
 
         <div className="markdown-editor">
@@ -97,6 +122,7 @@ function NoteForm({ onAdd, addingNote }) {
             onChange={(e) => setText(e.target.value)}
             disabled={addingNote}
             rows={4}
+            style={{ backgroundColor: 'transparent' }}
           />
         </div>
 
@@ -128,18 +154,50 @@ function NoteForm({ onAdd, addingNote }) {
           ))}
         </div>
 
-        <div className="button-group">
-          <label className="image-upload-btn" aria-label="이미지 첨부">
-            <FiImage size={20} />
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              disabled={addingNote || uploading}
-              style={{ display: 'none' }}
-            />
-          </label>
+        <div className="note-actions modal-actions">
+          <div className="action-tools">
+            <label className="image-upload-btn" aria-label="이미지 첨부">
+              <FiImage size={20} />
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                disabled={addingNote || uploading}
+                style={{ display: 'none' }}
+              />
+            </label>
+            <button
+              type="button"
+              className="image-upload-btn"
+              aria-label="배경색 변경"
+              onClick={() => setShowColorPicker(!showColorPicker)}
+            >
+              <FiDroplet size={20} />
+            </button>
+            {showColorPicker && (
+              <>
+                <div
+                  style={{ position: 'fixed', inset: 0, zIndex: 90 }}
+                  onClick={() => setShowColorPicker(false)}
+                />
+                <div className="color-picker-popover">
+                  {KEEP_COLORS.map((c) => (
+                    <div
+                      key={c.color}
+                      className={`color-option ${color === c.color ? 'selected' : ''}`}
+                      style={{ backgroundColor: c.color }}
+                      title={c.name}
+                      onClick={() => {
+                        setColor(c.color);
+                        setShowColorPicker(false);
+                      }}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
           <button
             type="submit"
             className="add-btn"

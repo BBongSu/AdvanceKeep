@@ -1,14 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { FiImage, FiX } from 'react-icons/fi';
+import { FiImage, FiX, FiDroplet } from 'react-icons/fi';
 import { useImageUpload } from '../../../hooks/useImageUpload';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
+
+const KEEP_COLORS = [
+  { name: 'Default', color: '#ffffff' },
+  { name: 'Red', color: '#f28b82' },
+  { name: 'Orange', color: '#fbbc04' },
+  { name: 'Yellow', color: '#fff475' },
+  { name: 'Green', color: '#ccff90' },
+  { name: 'Teal', color: '#a7ffeb' },
+  { name: 'Blue', color: '#cbf0f8' },
+  { name: 'Dark Blue', color: '#aecbfa' },
+  { name: 'Purple', color: '#d7aefb' },
+  { name: 'Pink', color: '#fdcfe8' },
+  { name: 'Brown', color: '#e6c9a8' },
+  { name: 'Gray', color: '#e8eaed' },
+];
 
 const EditNoteModal = ({ note, onUpdate, onClose }) => {
   const [title, setTitle] = useState(note.title || '');
   const [text, setText] = useState(note.text || '');
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [color, setColor] = useState(note.color || '#ffffff');
   const { selectedImages, handleImageSelect, clearImages, removeImage } = useImageUpload(
     Array.isArray(note.images) ? note.images : note.image ? [note.image] : []
   );
@@ -60,6 +77,7 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
         text,
         images: selectedImages,
         image: selectedImages?.[0] || null, // 기존 필드 호환
+        color,
       });
       if (ok !== false) {
         onClose();
@@ -109,7 +127,7 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
     <div className="modal-overlay" onClick={handleOverlayClick} onMouseDown={handleMouseDown}>
       <div
         className="modal-content"
-        style={{ backgroundColor: note.color || 'var(--bg-secondary)' }}
+        style={{ backgroundColor: color }}
       >
         <div className="image-preview-container">
           {selectedImages.map((img, idx) => (
@@ -142,6 +160,7 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="note-title-input modal-input"
+            style={{ backgroundColor: 'transparent' }}
           />
         </div>
 
@@ -152,11 +171,12 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
             value={text}
             onChange={(e) => setText(e.target.value)}
             rows={6}
+            style={{ backgroundColor: 'transparent' }}
           />
         </div>
 
         <div className="note-actions modal-actions">
-          <div style={{ marginRight: 'auto' }}>
+          <div className="action-tools">
             <label className="image-upload-btn" aria-label="이미지 첨부">
               <FiImage size={20} />
               <input
@@ -167,6 +187,36 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
                 style={{ display: 'none' }}
               />
             </label>
+            <button
+              type="button"
+              className="image-upload-btn"
+              aria-label="배경색 변경"
+              onClick={() => setShowColorPicker(!showColorPicker)}
+            >
+              <FiDroplet size={20} />
+            </button>
+            {showColorPicker && (
+              <>
+                <div
+                  style={{ position: 'fixed', inset: 0, zIndex: 90 }}
+                  onClick={() => setShowColorPicker(false)}
+                />
+                <div className="color-picker-popover">
+                  {KEEP_COLORS.map((c) => (
+                    <div
+                      key={c.color}
+                      className={`color-option ${color === c.color ? 'selected' : ''}`}
+                      style={{ backgroundColor: c.color }}
+                      title={c.name}
+                      onClick={() => {
+                        setColor(c.color);
+                        setShowColorPicker(false);
+                      }}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
           <button className="close-btn" onClick={onClose}>취소</button>
           <button className="close-btn primary" onClick={handleSave}>저장</button>

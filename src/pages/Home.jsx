@@ -80,7 +80,7 @@ function Home() {
     const handleAddNote = async (noteData) => {
         setAddingNote(true);
         try {
-            await addNote(noteData.title, noteData.text, noteData.images);
+            await addNote(noteData.title, noteData.text, noteData.images, noteData.color);
         } catch {
             await showErrorAlert('추가 실패', '노트를 추가할 수 없습니다. 다시 시도해주세요.');
             return false;

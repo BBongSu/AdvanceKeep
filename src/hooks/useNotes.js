@@ -85,7 +85,7 @@ export const useNotes = () => {
    * @param {string} text - 메모 내용
    * @param {Array<string>} images - 이미지 배열(base64)
    */
-  const addNote = async (title, text, images = []) => {
+  const addNote = async (title, text, images = [], color = '#ffffff') => {
     if (!user) {
       throw new Error('로그인이 필요합니다.');
     }
@@ -97,6 +97,7 @@ export const useNotes = () => {
       text: text ? text.trim() : null, // 리치 텍스트(HTML)도 그대로 저장
       images,
       image: images?.[0] || null, // 기존 필드와 호환 유지
+      color, // 배경색 저장
       createdAt: new Date().toISOString(),
       userId: user.id, // 기존 필드(소유자)
       ownerId: user.id, // 명확히 소유자를 구분하기 위한 필드
