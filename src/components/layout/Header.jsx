@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FiMenu, FiSearch, FiX, FiMoon, FiSun, FiFileText, FiLogOut, FiGrid, FiList } from 'react-icons/fi';
+import { FiMenu, FiSearch, FiX, FiMoon, FiSun, FiFileText, FiLogOut, FiGrid, FiList, FiClock } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
-const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onToggleDarkMode, viewMode, onViewModeChange }) => {
+const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onToggleDarkMode, viewMode, onViewModeChange, sortOrder, onSortOrderChange }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -69,6 +69,16 @@ const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onTogg
         </div>
       </div>
       <div className="header-right">
+        {onSortOrderChange && (
+          <button
+            className="icon-btn sort-order-btn"
+            onClick={() => onSortOrderChange(sortOrder === 'latest' ? 'oldest' : 'latest')}
+            aria-label={sortOrder === 'latest' ? '오래된 순으로 정렬' : '최신순으로 정렬'}
+            title={sortOrder === 'latest' ? '최신순' : '오래된 순'}
+          >
+            <FiClock size={20} style={{ color: sortOrder === 'oldest' ? '#10b981' : 'inherit' }} />
+          </button>
+        )}
         {onViewModeChange && (
           <button
             className="icon-btn view-mode-btn"

@@ -41,6 +41,21 @@ function NoteCard({
     const useHorizontalGallery = images.length > 2;
 
     /**
+     * 날짜를 보기 좋은 형식으로 변환 (예: 2023. 12. 26. 오후 1:30)
+     */
+    const formattedDate = useMemo(() => {
+        if (!note.createdAt) return '';
+        const date = new Date(note.createdAt);
+        return date.toLocaleString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    }, [note.createdAt]);
+
+    /**
      * 이미지 클릭 핸들러 - 라이트박스 열기
      * @param {number} index - 클릭한 이미지의 인덱스
      */
@@ -246,6 +261,11 @@ function NoteCard({
                         </button>
                     </>
                 )}
+            </div>
+
+            {/* 하단 정보 영역 (날짜 등) */}
+            <div className="note-card-footer">
+                {formattedDate && <span className="note-date">{formattedDate}</span>}
             </div>
 
             {/* 이미지 라이트박스 */}

@@ -8,6 +8,7 @@ function Layout({ isDarkMode, toggleDarkMode, searchQuery, setSearchQuery }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeMenu, setActiveMenu] = useState(MENU_ITEMS.NOTES);
     const [viewMode, setViewMode] = useState('card'); // 'card' or 'list'
+    const [sortOrder, setSortOrder] = useState('latest'); // 'latest' or 'oldest'
 
     const toggleSidebar = () => {
         setSidebarOpen((prev) => !prev);
@@ -28,6 +29,8 @@ function Layout({ isDarkMode, toggleDarkMode, searchQuery, setSearchQuery }) {
                 onToggleDarkMode={toggleDarkMode}
                 viewMode={viewMode}
                 onViewModeChange={setViewMode}
+                sortOrder={sortOrder}
+                onSortOrderChange={setSortOrder}
             />
             <Sidebar
                 isOpen={sidebarOpen}
@@ -35,7 +38,7 @@ function Layout({ isDarkMode, toggleDarkMode, searchQuery, setSearchQuery }) {
                 activeMenu={activeMenu}
             />
             <main className="main">
-                <Outlet context={{ searchQuery, viewMode }} />
+                <Outlet context={{ searchQuery, viewMode, sortOrder }} />
             </main>
         </div>
     );

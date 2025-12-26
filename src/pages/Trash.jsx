@@ -6,12 +6,18 @@ import { useOutletContext } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 function Trash() {
-    const { notes, restoreNote, deleteForever } = useNotes();
-    const { searchQuery } = useOutletContext();
+    const { restoreNote, deleteForever, notes } = useNotes();
+    const { searchQuery, sortOrder } = useOutletContext();
 
-    // Filter notes that are in trash
+    // Filter notes that are in trash and sort
     const trashedNotes = notes.filter(note => note.inTrash);
     const filteredNotes = useSearch(trashedNotes, searchQuery);
+
+    const sortedNotes = [...filteredNotes].sort((a, b) => {
+        const dateA = new Date(a.createdAt || 0);
+        const dateB = new Date(b.createdAt || 0);
+        return sortOrder === 'latest' ? dateB - dateA : dateA - dateB;
+    });
 
     const handleRestore = async (id) => {
         try {
@@ -53,13 +59,13 @@ function Trash() {
         }
     };
 
-    const isEmpty = filteredNotes.length === 0;
+    const isEmpty = sortedNotes.length === 0;
     const hasSearchQuery = searchQuery && searchQuery.trim().length > 0;
 
     return (
         <>
             <div className="notes-grid">
-                {filteredNotes.map((note) => (
+                {sortedNotes.map((note) => (
                     <NoteCard
                         key={note.id}
                         note={note}

@@ -16,12 +16,18 @@ function Archive() {
     const [editingNote, setEditingNote] = useState(null);
     const [addingNote, setAddingNote] = useState(false);
 
-    // 검색어 가져오기 (상위 컴포넌트에서 전달)
-    const { searchQuery } = useOutletContext();
+    // 검색어 및 정렬 순서 가져오기 (상위 컴포넌트에서 전달)
+    const { searchQuery, sortOrder } = useOutletContext();
 
-    // 보관되었지만 휴지통에 있지 않은 메모만 필터링
+    // 보관되었지만 휴지통에 있지 않은 메모만 필터링 및 정렬
     const archivedNotes = notes.filter(note => note.isArchived && !note.inTrash);
     const filteredNotes = useSearch(archivedNotes, searchQuery);
+
+    const sortedNotes = [...filteredNotes].sort((a, b) => {
+        const dateA = new Date(a.createdAt || 0);
+        const dateB = new Date(b.createdAt || 0);
+        return sortOrder === 'latest' ? dateB - dateA : dateA - dateB;
+    });
 
     // 메모 삭제 핸들러 (휴지통으로 이동)
     const handleDeleteNote = createNoteHandler(
@@ -46,14 +52,14 @@ function Archive() {
     );
 
     // 빈 상태 체크
-    const isEmpty = filteredNotes.length === 0 && !loading;
+    const isEmpty = sortedNotes.length === 0 && !loading;
     const hasSearchQuery = searchQuery && searchQuery.trim().length > 0;
 
     return (
         <>
             {/* 메모 그리드 */}
             <div className="notes-grid">
-                {filteredNotes.map((note) => (
+                {sortedNotes.map((note) => (
                     <NoteCard
                         key={note.id}
                         note={note}

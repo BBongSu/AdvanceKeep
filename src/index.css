@@ -1130,6 +1130,21 @@ input:disabled {
   border-color: rgba(255, 152, 0, 0.3);
 }
 
+/* 메모 하단 정보 */
+.note-card-footer {
+  margin-top: auto;
+  padding-top: 12px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.note-date {
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  font-family: inherit;
+}
 
 /* 다크모드 조정 */
 .dark-mode .note-card-actions {

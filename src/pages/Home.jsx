@@ -30,16 +30,25 @@ function Home() {
     const [addingNote, setAddingNote] = useState(false);
     const { user } = useAuth();
 
-    // 검색어 가져오기 (상위 컴포넌트에서 전달)
-    const { searchQuery, viewMode } = useOutletContext();
+    // 검색어 및 정렬 순서 가져오기 (상위 컴포넌트에서 전달)
+    const { searchQuery, viewMode, sortOrder } = useOutletContext();
 
     // 휴지통과 보관함에 있지 않은 활성 메모만 필터링
     const activeNotes = notes.filter(note => !note.inTrash && !note.isArchived);
     const filteredNotes = useSearch(activeNotes, searchQuery);
 
-    // 고정된 메모와 일반 메모 분리
-    const pinnedNotes = filteredNotes.filter(note => note.isPinned);
-    const otherNotes = filteredNotes.filter(note => !note.isPinned);
+    // 고정된 메모와 일반 메모 분리 및 정렬
+    const sortNotes = (noteList) => {
+        return [...noteList].sort((a, b) => {
+            const dateA = new Date(a.createdAt || 0);
+            const dateB = new Date(b.createdAt || 0);
+            return sortOrder === 'latest' ? dateB - dateA : dateA - dateB;
+        });
+    };
+
+    const pinnedNotes = sortNotes(filteredNotes.filter(note => note.isPinned));
+    const otherNotes = sortNotes(filteredNotes.filter(note => !note.isPinned));
+    const finalFilteredNotes = [...pinnedNotes, ...otherNotes];
 
     /**
      * 메모가 현재 사용자와 공유되었는지 확인
@@ -235,7 +244,7 @@ function Home() {
     };
 
     // 빈 상태 체크
-    const isEmpty = filteredNotes.length === 0 && !loading && !addingNote;
+    const isEmpty = finalFilteredNotes.length === 0 && !loading && !addingNote;
     const hasSearchQuery = searchQuery && searchQuery.trim().length > 0;
 
     return (
