@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { FiImage, FiPlus, FiX, FiLoader, FiDroplet } from 'react-icons/fi';
+import { FiImage, FiPlus, FiX, FiLoader, FiDroplet, FiTag } from 'react-icons/fi';
 import { useImageUpload } from '../../../hooks/useImageUpload';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
+import LabelPicker from './LabelPicker'; // Import LabelPicker
+import NoteLabels from './NoteLabels';
 
 const KEEP_COLORS = [
   { name: 'Default', color: '' }, // 투명(테마 기본색)
@@ -27,6 +29,9 @@ function NoteForm({ onAdd, addingNote }) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  // 라벨 관련 상태: 선택된 라벨 ID 목록과 라벨 선택기(Picker) 표시 여부 관리
+  const [showLabelPicker, setShowLabelPicker] = useState(false);
+  const [selectedLabelIds, setSelectedLabelIds] = useState([]);
 
   // 기본값은 투명(테마 배경색 따름)으로 설정
   const [color, setColor] = useState('');
@@ -48,6 +53,7 @@ function NoteForm({ onAdd, addingNote }) {
       text,
       images: selectedImages,
       color,
+      labels: selectedLabelIds, // Save label IDs
     };
 
     setTitle('');
@@ -55,6 +61,8 @@ function NoteForm({ onAdd, addingNote }) {
     clearImages();
     setColor('');
     setShowColorPicker(false);
+    setShowLabelPicker(false);
+    setSelectedLabelIds([]);
 
     onAdd(noteData);
   };
@@ -134,6 +142,14 @@ function NoteForm({ onAdd, addingNote }) {
           <span className="hint-text">Enter: 줄바꿈</span>
         </div>
 
+        {/* 선택된 라벨들을 표시, 공통 컴포넌트 사용 (삭제 기능 포함) */}
+        {selectedLabelIds.length > 0 && (
+          <NoteLabels
+            labelIds={selectedLabelIds}
+            onRemove={(id) => setSelectedLabelIds(prev => prev.filter(lid => lid !== id))}
+          />
+        )}
+
         <div className="image-preview-container">
           {selectedImages.map((img, idx) => (
             <div className="image-preview" key={`preview-${idx}`}>
@@ -179,6 +195,14 @@ function NoteForm({ onAdd, addingNote }) {
             >
               <FiDroplet size={20} />
             </button>
+            <button
+              type="button"
+              className="image-upload-btn"
+              aria-label="라벨 추가"
+              onClick={() => setShowLabelPicker(!showLabelPicker)}
+            >
+              <FiTag size={20} />
+            </button>
             {showColorPicker && (
               <>
                 <div
@@ -199,6 +223,25 @@ function NoteForm({ onAdd, addingNote }) {
                     />
                   ))}
                 </div>
+              </>
+            )}
+            {/* 라벨 선택 팝오버: 태그 아이콘 클릭 시 표시 */}
+            {showLabelPicker && (
+              <>
+                <div
+                  style={{ position: 'fixed', inset: 0, zIndex: 90 }}
+                  onClick={() => setShowLabelPicker(false)}
+                />
+                <LabelPicker
+                  selectedLabelIds={selectedLabelIds}
+                  onToggleLabel={(id) => {
+                    // 라벨 토글: 이미 있으면 제거, 없으면 추가
+                    setSelectedLabelIds(prev =>
+                      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+                    );
+                  }}
+                  onClose={() => setShowLabelPicker(false)}
+                />
               </>
             )}
           </div>

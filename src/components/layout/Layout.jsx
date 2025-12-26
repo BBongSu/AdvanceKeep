@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
@@ -10,14 +10,14 @@ function Layout({ isDarkMode, toggleDarkMode, searchQuery, setSearchQuery }) {
     const [viewMode, setViewMode] = useState('card'); // 'card' or 'list'
     const [sortOrder, setSortOrder] = useState('latest'); // 'latest' or 'oldest'
 
-    const toggleSidebar = () => {
+    const toggleSidebar = useCallback(() => {
         setSidebarOpen((prev) => !prev);
-    };
+    }, []);
 
-    const handleMenuClick = (menuId) => {
+    const handleMenuClick = useCallback((menuId) => {
         setActiveMenu(menuId);
         setSidebarOpen(false);
-    };
+    }, []);
 
     return (
         <div className={`app ${isDarkMode ? 'dark' : ''}`}>

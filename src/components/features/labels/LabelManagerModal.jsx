@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FiX, FiCheck, FiEdit2, FiTrash2, FiPlus } from 'react-icons/fi';
+import { FiX, FiCheck, FiEdit2, FiTrash2, FiPlus, FiTag } from 'react-icons/fi';
 import { useLabels } from '../../../hooks/useLabels';
 
 const LabelManagerModal = ({ onClose }) => {
@@ -8,6 +8,7 @@ const LabelManagerModal = ({ onClose }) => {
     const [editingId, setEditingId] = useState(null);
     const [editName, setEditName] = useState('');
     const inputRef = useRef(null);
+    const mouseDownTarget = useRef(null);
 
     // 수정 시작 시 입력창에 포커스
     useEffect(() => {
@@ -45,8 +46,18 @@ const LabelManagerModal = ({ onClose }) => {
         setEditName(label.name);
     };
 
+    const handleMouseDown = (e) => {
+        mouseDownTarget.current = e.target;
+    };
+
+    const handleOverlayClick = (e) => {
+        if (e.target === e.currentTarget && mouseDownTarget.current === e.currentTarget) {
+            onClose();
+        }
+    };
+
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-overlay" onClick={handleOverlayClick} onMouseDown={handleMouseDown}>
             <div className="modal-content label-manager-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
                     <h3>라벨 수정</h3>
@@ -86,7 +97,7 @@ const LabelManagerModal = ({ onClose }) => {
                             <div key={label.id} className="label-row">
                                 {editingId === label.id ? (
                                     <>
-                                        <button className="icon-btn-small" onClick={() => setEditingId(null)}>
+                                        <button className="icon-btn-small" onClick={() => removeLabel(label.id)}>
                                             <FiTrash2 size={16} />
                                         </button>
                                         <input
@@ -105,10 +116,8 @@ const LabelManagerModal = ({ onClose }) => {
                                     </>
                                 ) : (
                                     <>
-                                        <div className="label-icon-wrapper" onClick={() => removeLabel(label.id)}>
-                                            <FiTrash2 size={16} className="trash-icon" />
-                                            <div className="label-icon-placeholder"><FiEdit2 size={16} /></div>
-                                            {/* 호버 효과는 CSS로 처리 */}
+                                        <div className="icon-btn-small" style={{ cursor: 'default' }}>
+                                            <FiTag size={16} />
                                         </div>
                                         <span
                                             className="label-name-display"

@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { FiImage, FiX, FiDroplet } from 'react-icons/fi';
+import { FiImage, FiX, FiDroplet, FiTag } from 'react-icons/fi';
 import { useImageUpload } from '../../../hooks/useImageUpload';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
+import LabelPicker from './LabelPicker';
+import NoteLabels from './NoteLabels';
 
 const KEEP_COLORS = [
   { name: 'Default', color: '' }, // 투명(테마 기본색)
@@ -25,6 +27,9 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  // 라벨 선택 팝오버 표시 여부 및 선택된 라벨 ID 목록 상태
+  const [showLabelPicker, setShowLabelPicker] = useState(false);
+  const [selectedLabelIds, setSelectedLabelIds] = useState(note.labels || []);
   const [color, setColor] = useState(note.color || '');
   const { selectedImages, handleImageSelect, clearImages, removeImage } = useImageUpload(
     Array.isArray(note.images) ? note.images : note.image ? [note.image] : []
@@ -78,6 +83,7 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
         images: selectedImages,
         image: selectedImages?.[0] || null, // 기존 필드 호환
         color,
+        labels: selectedLabelIds, // 수정된 라벨 목록 저장
       });
       if (ok !== false) {
         onClose();
@@ -175,6 +181,14 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
           />
         </div>
 
+        {/* 선택된 라벨들을 표시, 공통 컴포넌트 사용 (삭제 기능 포함) */}
+        {selectedLabelIds.length > 0 && (
+          <NoteLabels
+            labelIds={selectedLabelIds}
+            onRemove={(id) => setSelectedLabelIds(prev => prev.filter(lid => lid !== id))}
+          />
+        )}
+
         <div className="note-actions modal-actions">
           <div className="action-tools">
             <label className="image-upload-btn" aria-label="이미지 첨부">
@@ -194,6 +208,14 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
               onClick={() => setShowColorPicker(!showColorPicker)}
             >
               <FiDroplet size={20} />
+            </button>
+            <button
+              type="button"
+              className="image-upload-btn"
+              aria-label="라벨 추가"
+              onClick={() => setShowLabelPicker(!showLabelPicker)}
+            >
+              <FiTag size={20} />
             </button>
             {showColorPicker && (
               <>
@@ -215,6 +237,23 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
                     />
                   ))}
                 </div>
+              </>
+            )}
+            {showLabelPicker && (
+              <>
+                <div
+                  style={{ position: 'fixed', inset: 0, zIndex: 90 }}
+                  onClick={() => setShowLabelPicker(false)}
+                />
+                <LabelPicker
+                  selectedLabelIds={selectedLabelIds}
+                  onToggleLabel={(id) => {
+                    setSelectedLabelIds(prev =>
+                      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+                    );
+                  }}
+                  onClose={() => setShowLabelPicker(false)}
+                />
               </>
             )}
           </div>

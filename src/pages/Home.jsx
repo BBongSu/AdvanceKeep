@@ -1,10 +1,10 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import { useNotes } from '../hooks/useNotes';
 import { useSearch } from '../hooks/useSearch';
 import NoteForm from '../components/features/notes/NoteForm';
 import NoteCard from '../components/features/notes/NoteCard';
 import EditNoteModal from '../components/features/notes/EditNoteModal';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useParams } from 'react-router-dom';
 import { createNoteHandler, getEmptyStateMessage, showErrorAlert } from '../utils/noteHelpers';
 import Swal from 'sweetalert2';
 import { useAuth } from '../hooks/useAuth';
@@ -33,8 +33,20 @@ function Home() {
     // 검색어 및 정렬 순서 가져오기 (상위 컴포넌트에서 전달)
     const { searchQuery, viewMode, sortOrder } = useOutletContext();
 
+    const { labelId } = useParams();
+
     // 휴지통과 보관함에 있지 않은 활성 메모만 필터링
-    const activeNotes = notes.filter(note => !note.inTrash && !note.isArchived);
+    const activeNotes = useMemo(() => {
+        return notes.filter(note => {
+            if (note.inTrash) return false;
+            if (labelId) {
+                return (note.labels || []).includes(labelId);
+            }
+            if (note.isArchived) return false;
+            return true;
+        });
+    }, [notes, labelId]);
+
     const filteredNotes = useSearch(activeNotes, searchQuery);
 
     // 고정된 메모와 일반 메모 분리 및 정렬
@@ -89,7 +101,7 @@ function Home() {
     const handleAddNote = async (noteData) => {
         setAddingNote(true);
         try {
-            await addNote(noteData.title, noteData.text, noteData.images, noteData.color);
+            await addNote(noteData.title, noteData.text, noteData.images, noteData.color, noteData.labels);
         } catch {
             await showErrorAlert('추가 실패', '노트를 추가할 수 없습니다. 다시 시도해주세요.');
             return false;

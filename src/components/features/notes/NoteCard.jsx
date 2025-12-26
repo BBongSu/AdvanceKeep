@@ -4,6 +4,7 @@ import { BsPin, BsPinFill } from 'react-icons/bs';
 import { HighlightText } from '../../common/HighlightText';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
+import NoteLabels from './NoteLabels';
 
 
 /**
@@ -144,7 +145,7 @@ function NoteCard({
                                 }
                             }}
                         >
-                            <img src={img} alt="Note attachment" />
+                            <img src={img} alt="Note attachment" loading="lazy" />
                         </div>
                     ))}
                 </div>
@@ -168,6 +169,12 @@ function NoteCard({
                 >
                     {expanded ? '접기' : '더보기'}
                 </button>
+            )}
+
+            {/* Label Chips */}
+            {/* Label Chips */}
+            {note.labels && note.labels.length > 0 && (
+                <NoteLabels labelIds={note.labels} isSmall={true} />
             )}
 
             {/* 액션 버튼 영역 */}
@@ -279,4 +286,4 @@ function NoteCard({
     );
 }
 
-export default NoteCard;
+export default React.memo(NoteCard);

@@ -28,7 +28,11 @@ export const subscribeLabels = (userId, callback) => {
         const labels = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
-        })).sort((a, b) => a.name.localeCompare(b.name));
+        })).sort((a, b) => {
+            const dateA = new Date(a.createdAt || 0);
+            const dateB = new Date(b.createdAt || 0);
+            return dateA - dateB; // 등록순 (오름차순) 정렬
+        });
         callback(labels);
     }, (err) => console.error('Labels subscription error:', err));
 
