@@ -10,5 +10,9 @@ service cloud.firestore {
     match /notes/{noteId} {
       allow read, write, create, delete: if request.auth != null;
     }
+
+    match /labels/{labelId} {
+      allow read, write, create, delete: if request.auth != null;
+    }
   }
 }
