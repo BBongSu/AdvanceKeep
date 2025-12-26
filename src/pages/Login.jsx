@@ -8,7 +8,7 @@ import { useAuth } from '../hooks/useAuth';
 
 const Login = () => {
   // 이미 로그인된 사용자는 접근 불가 -> 홈으로 리다이렉트
-  const { login, loading, user } = useAuth();
+  const { login, loading, user, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '' });
@@ -121,6 +121,26 @@ const Login = () => {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle(stayLoggedIn);
+      await Swal.fire({
+        icon: 'success',
+        title: '로그인 완료',
+        text: '구글 계정으로 로그인되었습니다!',
+        confirmButtonColor: '#667eea',
+      });
+      navigate(from, { replace: true });
+    } catch (err) {
+      await Swal.fire({
+        icon: 'error',
+        title: '로그인 실패',
+        text: err.message || '구글 로그인에 실패했습니다.',
+        confirmButtonColor: '#667eea',
+      });
+    }
+  };
+
   return (
     <div className="auth-container">
       <div className="auth-card">
@@ -174,6 +194,53 @@ const Login = () => {
             {loading ? '로그인 중...' : '로그인'}
           </button>
         </form>
+
+        {/* 소셜 로그인 구분선 */}
+        <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', gap: '10px' }}>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>또는</span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
+        </div>
+
+        {/* 소셜 로그인 버튼 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={loading}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              padding: '12px',
+              border: '1px solid var(--border-color)',
+              borderRadius: '8px',
+              background: 'white',
+              color: '#333',
+              fontSize: '15px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#f8f9fa';
+              e.currentTarget.style.borderColor = '#667eea';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'white';
+              e.currentTarget.style.borderColor = 'var(--border-color)';
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4" />
+              <path d="M9.003 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z" fill="#34A853" />
+              <path d="M3.964 10.712c-.18-.54-.282-1.117-.282-1.71 0-.593.102-1.17.282-1.71V4.96H.957C.347 6.175 0 7.55 0 9.002c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05" />
+              <path d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.426 0 9.003 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z" fill="#EA4335" />
+            </svg>
+            Google로 로그인
+          </button>
+        </div>
 
         <div className="auth-footer" style={{ flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
           <div style={{ display: 'flex', gap: '8px' }}>

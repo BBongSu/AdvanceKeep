@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AUTH_STORAGE_KEY } from '../constants';
-import { loginUser, registerUser } from '../services/auth';
+import { loginUser, registerUser, loginWithGoogle } from '../services/auth';
 import { setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
 import { auth as firebaseAuth } from '../services/firebase';
 
@@ -82,8 +82,38 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // 구글 로그인 처리
+  const handleGoogleLogin = async (stayLoggedIn = false) => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Firebase 지속성 설정 적용
+      const persistence = stayLoggedIn ? browserLocalPersistence : browserSessionPersistence;
+      await setPersistence(firebaseAuth, persistence);
+
+      const loggedInUser = await loginWithGoogle();
+
+      // 사용자 선택에 따라 저장소 결정
+      if (stayLoggedIn) {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(loggedInUser));
+        sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      } else {
+        sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(loggedInUser));
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+      }
+
+      setUser(loggedInUser);
+      return loggedInUser;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, error, ready, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, loading, error, ready, login, signup, logout, loginWithGoogle: handleGoogleLogin }}>
       {children}
     </AuthContext.Provider>
   );

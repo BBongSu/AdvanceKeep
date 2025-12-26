@@ -4,6 +4,8 @@ import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 import { doc, setDoc, collection, query, where, getDocs, getDoc } from 'firebase/firestore';
 
@@ -131,6 +133,43 @@ export const findEmailByName = async (name) => {
 
   // 동명이인이 있을 수 있으므로 배열로 반환
   return querySnapshot.docs.map(doc => doc.data().email);
+};
+
+/**
+ * 구글 로그인 함수
+ */
+export const loginWithGoogle = async () => {
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
+
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    // Firestore에 사용자 정보가 있는지 확인
+    const userDocRef = doc(db, 'users', user.uid);
+    const userSnapshot = await getDoc(userDocRef);
+
+    if (!userSnapshot.exists()) {
+      // 정보가 없으면 새로 생성
+      await setDoc(userDocRef, {
+        uid: user.uid,
+        name: user.displayName || user.email.split('@')[0],
+        email: user.email,
+        createdAt: new Date().toISOString(),
+        provider: 'google',
+      });
+    }
+
+    return formatUser(user);
+  } catch (error) {
+    if (error.code === 'auth/popup-closed-by-user') {
+      throw new Error('로그인 창이 닫혔습니다.');
+    }
+    throw error;
+  }
 };
 
 // 현재 로그인된 사용자 확인 (세션 체크용)
