@@ -5,7 +5,7 @@ import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 
 const KEEP_COLORS = [
-  { name: 'Default', color: '#ffffff' },
+  { name: 'Default', color: '' }, // 투명(테마 기본색)
   { name: 'Red', color: '#f28b82' },
   { name: 'Orange', color: '#fbbc04' },
   { name: 'Yellow', color: '#fff475' },
@@ -25,7 +25,7 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showColorPicker, setShowColorPicker] = useState(false);
-  const [color, setColor] = useState(note.color || '#ffffff');
+  const [color, setColor] = useState(note.color || '');
   const { selectedImages, handleImageSelect, clearImages, removeImage } = useImageUpload(
     Array.isArray(note.images) ? note.images : note.image ? [note.image] : []
   );

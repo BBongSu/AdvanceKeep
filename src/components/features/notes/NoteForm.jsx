@@ -5,7 +5,7 @@ import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 
 const KEEP_COLORS = [
-  { name: 'Default', color: '#ffffff' },
+  { name: 'Default', color: '' }, // 투명(테마 기본색)
   { name: 'Red', color: '#f28b82' },
   { name: 'Orange', color: '#fbbc04' },
   { name: 'Yellow', color: '#fff475' },
@@ -19,13 +19,17 @@ const KEEP_COLORS = [
   { name: 'Gray', color: '#e8eaed' },
 ];
 
+const LAST_COLOR_KEY = 'advancekeep-last-color';
+
 function NoteForm({ onAdd, addingNote }) {
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showColorPicker, setShowColorPicker] = useState(false);
-  const [color, setColor] = useState('#ffffff');
+
+  // 기본값은 투명(테마 배경색 따름)으로 설정
+  const [color, setColor] = useState('');
   const { selectedImages, handleImageSelect, clearImages, removeImage, uploading } = useImageUpload();
 
   const handleImageChange = (e) => {
@@ -49,7 +53,7 @@ function NoteForm({ onAdd, addingNote }) {
     setTitle('');
     setText('');
     clearImages();
-    setColor('#ffffff');
+    setColor('');
     setShowColorPicker(false);
 
     onAdd(noteData);
