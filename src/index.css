@@ -1503,7 +1503,7 @@ input:disabled {
   padding: 12px 14px;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #10b981, #059669);
   color: #fff;
   font-weight: 700;
   cursor: pointer;
@@ -1517,7 +1517,7 @@ input:disabled {
 
 .auth-submit:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(102, 126, 234, 0.28);
+  box-shadow: 0 10px 24px rgba(16, 185, 129, 0.28);
 }
 
 .auth-footer {

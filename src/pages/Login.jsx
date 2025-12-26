@@ -36,7 +36,7 @@ const Login = () => {
         icon: 'success',
         title: '로그인 완료',
         text: '다시 만나서 반가워요!',
-        confirmButtonColor: '#667eea',
+        confirmButtonColor: '#10b981',
       });
       navigate(from, { replace: true });
     } catch (err) {
@@ -44,7 +44,7 @@ const Login = () => {
         icon: 'error',
         title: '로그인 실패',
         text: err.message || '로그인에 실패했습니다. 다시 시도해주세요.',
-        confirmButtonColor: '#667eea',
+        confirmButtonColor: '#10b981',
       });
     }
   };
@@ -58,7 +58,7 @@ const Login = () => {
       showCancelButton: true,
       confirmButtonText: '찾기',
       cancelButtonText: '취소',
-      confirmButtonColor: '#667eea',
+      confirmButtonColor: '#10b981',
     });
 
     if (name) {
@@ -70,20 +70,20 @@ const Login = () => {
             icon: 'info',
             title: '찾은 이메일 목록',
             html: `<ul>${emailList}</ul><p style="font-size:0.8em; color:gray; margin-top:10px;">*개인정보 보호를 위해 일부 가려집니다.</p>`,
-            confirmButtonColor: '#667eea',
+            confirmButtonColor: '#10b981',
           });
         } else {
           await Swal.fire({
             icon: 'warning',
             text: '해당 이름으로 가입된 이메일을 찾을 수 없습니다.',
-            confirmButtonColor: '#667eea',
+            confirmButtonColor: '#10b981',
           });
         }
       } catch (error) {
         await Swal.fire({
           icon: 'error',
           text: '검색 중 오류가 발생했습니다.',
-          confirmButtonColor: '#667eea',
+          confirmButtonColor: '#10b981',
         });
       }
     }
@@ -98,7 +98,7 @@ const Login = () => {
       showCancelButton: true,
       confirmButtonText: '메일 보내기',
       cancelButtonText: '취소',
-      confirmButtonColor: '#667eea',
+      confirmButtonColor: '#10b981',
     });
 
     if (email) {
@@ -108,14 +108,14 @@ const Login = () => {
           icon: 'success',
           title: '이메일 발송 완료',
           text: '비밀번호 재설정 링크가 이메일로 전송되었습니다. 메일함을 확인해주세요.',
-          confirmButtonColor: '#667eea',
+          confirmButtonColor: '#10b981',
         });
       } catch (error) {
         await Swal.fire({
           icon: 'error',
           title: '전송 실패',
           text: '해당 이메일을 찾을 수 없거나 오류가 발생했습니다.',
-          confirmButtonColor: '#667eea',
+          confirmButtonColor: '#10b981',
         });
       }
     }
@@ -128,7 +128,7 @@ const Login = () => {
         icon: 'success',
         title: '로그인 완료',
         text: '구글 계정으로 로그인되었습니다!',
-        confirmButtonColor: '#667eea',
+        confirmButtonColor: '#10b981',
       });
       navigate(from, { replace: true });
     } catch (err) {
@@ -136,7 +136,7 @@ const Login = () => {
         icon: 'error',
         title: '로그인 실패',
         text: err.message || '구글 로그인에 실패했습니다.',
-        confirmButtonColor: '#667eea',
+        confirmButtonColor: '#10b981',
       });
     }
   };
@@ -225,7 +225,7 @@ const Login = () => {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = '#f8f9fa';
-              e.currentTarget.style.borderColor = '#667eea';
+              e.currentTarget.style.borderColor = '#10b981';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'white';
@@ -253,7 +253,7 @@ const Login = () => {
             <button
               type="button"
               onClick={handleFindEmail}
-              style={{ background: 'none', border: 'none', color: '#667eea', cursor: 'pointer', textDecoration: 'underline', fontSize: '14px' }}
+              style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', textDecoration: 'underline', fontSize: '14px' }}
             >
               아이디 찾기
             </button>
@@ -261,7 +261,7 @@ const Login = () => {
             <button
               type="button"
               onClick={handleFindPassword}
-              style={{ background: 'none', border: 'none', color: '#667eea', cursor: 'pointer', textDecoration: 'underline', fontSize: '14px' }}
+              style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', textDecoration: 'underline', fontSize: '14px' }}
             >
               비밀번호 찾기
             </button>
