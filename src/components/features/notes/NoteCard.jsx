@@ -57,11 +57,17 @@ function NoteCard({
         <div
             className="note-card"
             style={{ backgroundColor: note.color }}
-            onClick={() => !isTrash && onEdit(note)}
+            onClick={() => {
+                if (isTrash) return;
+                // 모바일 환경(768px 이하)이면 카드 클릭으로 수정 모달이 뜨지 않도록 방지
+                if (window.innerWidth <= 768) return;
+                onEdit(note);
+            }}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
                 if (!isTrash && (e.key === 'Enter' || e.key === ' ')) {
+                    if (window.innerWidth <= 768) return;
                     e.preventDefault();
                     onEdit(note);
                 }

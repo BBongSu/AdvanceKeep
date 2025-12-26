@@ -1010,6 +1010,7 @@ input:disabled {
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 7;
+  line-clamp: 7;
   -webkit-box-orient: vertical;
   mask-image: linear-gradient(180deg, #000 70%, rgba(0, 0, 0, 0));
   -webkit-mask-image: linear-gradient(180deg, #000 70%, rgba(0, 0, 0, 0));
@@ -1024,7 +1025,7 @@ input:disabled {
   color: var(--text-primary);
   cursor: pointer;
   font-size: 12px;
-  align-self: flex-end;
+  align-self: flex-start;
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
