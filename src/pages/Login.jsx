@@ -253,7 +253,7 @@ const Login = () => {
             <button
               type="button"
               onClick={handleFindEmail}
-              style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', textDecoration: 'underline', fontSize: '14px' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontSize: '14px' }}
             >
               아이디 찾기
             </button>
@@ -261,7 +261,7 @@ const Login = () => {
             <button
               type="button"
               onClick={handleFindPassword}
-              style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', textDecoration: 'underline', fontSize: '14px' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontSize: '14px' }}
             >
               비밀번호 찾기
             </button>
