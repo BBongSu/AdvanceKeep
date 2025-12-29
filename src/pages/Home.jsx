@@ -284,7 +284,7 @@ function Home() {
     return (
         <>
             {/* 메모 추가 폼 */}
-            <NoteForm onAdd={handleAddNote} addingNote={addingNote} />
+            <NoteForm onAdd={handleAddNote} addingNote={addingNote} defaultLabelId={labelId} />
 
             {/* 메모 그리드 */}
             {pinnedNotes.length > 0 ? (

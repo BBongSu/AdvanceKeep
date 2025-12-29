@@ -12,7 +12,7 @@ import { useLocation } from 'react-router-dom';
 
 const LAST_COLOR_KEY = 'advancekeep-last-color';
 
-function NoteForm({ onAdd, addingNote }) {
+function NoteForm({ onAdd, addingNote, defaultLabelId }) {
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
   const [mode, setMode] = useState('text'); // 'text' | 'checklist'
@@ -32,7 +32,7 @@ function NoteForm({ onAdd, addingNote }) {
   const location = useLocation();
   const isTodoPage = location.pathname === '/todo';
 
-  // 페이지 이동 시 모드 초기화 또는 자동 설정
+  // 페이지 이동 시 모드 초기화, 라벨 초기화
   useEffect(() => {
     if (isTodoPage) {
       setMode('checklist');
@@ -40,9 +40,17 @@ function NoteForm({ onAdd, addingNote }) {
         setChecklistItems([{ id: uuidv4(), text: '', checked: false }]);
       }
     } else {
+      // 투두 페이지가 아닐 때는 텍스트 모드가 기본이지만, 사용자가 변경할 수 있음
       setMode('text');
     }
-  }, [isTodoPage]);
+
+    // Auto-select label if provided from props (e.g., from /label/:labelId)
+    if (defaultLabelId) {
+      setSelectedLabelIds([defaultLabelId]);
+    } else {
+      setSelectedLabelIds([]);
+    }
+  }, [isTodoPage, defaultLabelId]);
 
   const handleImageChange = (e) => {
     const files = e.target.files;
@@ -54,6 +62,17 @@ function NoteForm({ onAdd, addingNote }) {
   const startChecklistMode = () => {
     setMode('checklist');
     setChecklistItems([{ id: uuidv4(), text: '', checked: false }]);
+  };
+
+  const toggleMode = () => {
+    if (mode === 'text') {
+      setMode('checklist');
+      if (checklistItems.length === 0) {
+        setChecklistItems([{ id: uuidv4(), text: '', checked: false }]);
+      }
+    } else {
+      setMode('text');
+    }
   };
 
   // 체크리스트 항목 텍스트 변경
@@ -133,13 +152,15 @@ function NoteForm({ onAdd, addingNote }) {
 
     setTitle('');
     setText('');
-    setMode('text');
+    // Reset to default depending on page, but user can toggle back
+    setMode(isTodoPage ? 'checklist' : 'text');
     setChecklistItems([{ id: uuidv4(), text: '', checked: false }]);
     clearImages();
     setColor('');
     setShowColorPicker(false);
     setShowLabelPicker(false);
-    setSelectedLabelIds([]);
+    // Maintain default label if present
+    setSelectedLabelIds(defaultLabelId ? [defaultLabelId] : []);
 
     onAdd(noteData);
   };
@@ -195,7 +216,12 @@ function NoteForm({ onAdd, addingNote }) {
           {mode === 'text' ? (
             <span className="hint-text">Enter: 줄바꿈</span>
           ) : (
-            <span className="hint-text">Enter: 항목 추가, Backspace: 항목 삭제</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+              <span className="hint-text">Enter: 항목 추가, Backspace: 항목 삭제</span>
+              <span className="hint-text" style={{ color: '#667eea', fontWeight: '500' }}>
+                * 체크리스트는 "할 일 목록" 메뉴에 저장됩니다.
+              </span>
+            </div>
           )}
         </div>
 
@@ -248,6 +274,15 @@ function NoteForm({ onAdd, addingNote }) {
               onClick={() => setShowLabelPicker(!showLabelPicker)}
             >
               <FiTag size={20} />
+            </button>
+            <button
+              type="button"
+              className={`image-upload-btn ${mode === 'checklist' ? 'active' : ''}`}
+              aria-label="체크리스트 토글"
+              onClick={toggleMode}
+              title={mode === 'text' ? "체크리스트 만들기" : "텍스트 메모 만들기"}
+            >
+              <FiCheckSquare size={20} color={mode === 'checklist' ? '#667eea' : undefined} />
             </button>
             {showColorPicker && (
               <ColorPicker
