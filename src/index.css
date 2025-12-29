@@ -18,6 +18,51 @@
   --shadow-hover: rgba(0, 0, 0, 0.15);
   --hover-bg: rgba(60, 64, 67, 0.08);
   --sidebar-active: #feefc3;
+  --checkbox-color: #5f6368;
+  --checkbox-checked: #667eea;
+}
+
+/* Custom Checkbox Styles */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--checkbox-color);
+  border-radius: 2px;
+  margin-top: 4px;
+  margin-right: 8px;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+input[type="checkbox"]:checked {
+  background-color: var(--checkbox-checked);
+  border-color: var(--checkbox-checked);
+}
+
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 4px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Increase hit area */
+input[type="checkbox"]::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
 }
 
 .dark-mode {

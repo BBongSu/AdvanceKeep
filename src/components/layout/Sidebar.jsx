@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiFileText, FiTrash2, FiArchive, FiTag, FiEdit2 } from 'react-icons/fi';
+import { FiFileText, FiTrash2, FiArchive, FiTag, FiEdit2, FiCheckSquare } from 'react-icons/fi';
 import { NavLink } from 'react-router-dom';
 import { MENU_ITEMS, MENU_LABELS } from '../../constants';
 import { useLabels } from '../../hooks/useLabels';
@@ -7,6 +7,7 @@ import LabelManagerModal from '../features/labels/LabelManagerModal';
 
 const MENU_CONFIG = [
   { icon: FiFileText, id: MENU_ITEMS.NOTES, path: '/' },
+  { icon: FiCheckSquare, id: MENU_ITEMS.TODO, path: '/todo' },
   { icon: FiArchive, id: MENU_ITEMS.ARCHIVE, path: '/archive' },
   { icon: FiTrash2, id: MENU_ITEMS.TRASH, path: '/trash' },
 ];

@@ -14,6 +14,7 @@ import NoteLabels from './NoteLabels';
 function NoteCard({
     note,
     onEdit,
+    onUpdate,
     onDelete,
     onRestore,
     onArchive,
@@ -151,10 +152,71 @@ function NoteCard({
                 </div>
             )}
 
-            {note.text && (
-                <p className={`note-text ${shouldCollapse && isLongText ? 'collapsed-text' : ''}`}>
-                    <HighlightText text={note.text} highlight={searchQuery} />
-                </p>
+            {note.type === 'checklist' && note.items ? (
+                <div className="note-checklist" style={{ width: '100%' }}>
+                    {/* Active Items */}
+                    {note.items.filter(item => !item.checked).map((item) => (
+                        <div key={item.id} className="checklist-item-display"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '4px' }}
+                        >
+                            <input
+                                type="checkbox"
+                                checked={item.checked}
+                                onChange={(e) => {
+                                    e.stopPropagation();
+                                    // Make a copy of items
+                                    const newItems = note.items.map(i =>
+                                        i.id === item.id ? { ...i, checked: e.target.checked } : i
+                                    );
+                                    // Call update handler
+                                    onUpdate && onUpdate({ ...note, items: newItems });
+                                }}
+                                style={{ marginTop: '4px', marginRight: '8px', cursor: 'pointer' }}
+                            />
+                            <span style={{ flex: 1, wordBreak: 'break-word' }}>
+                                <HighlightText text={item.text} highlight={searchQuery} />
+                            </span>
+                        </div>
+                    ))}
+
+                    {/* Completed Items */}
+                    {note.items.filter(item => item.checked).length > 0 && (
+                        <div className="checklist-completed-section" style={{ marginTop: '12px', paddingTop: '8px', borderTop: '1px solid rgba(0,0,0,0.1)', width: '100%' }}>
+                            <div style={{ fontSize: '0.85em', color: '#5f6368', marginBottom: '4px', marginLeft: '24px' }}>
+                                완료된 항목 {note.items.filter(item => item.checked).length}개
+                            </div>
+                            {note.items.filter(item => item.checked).map((item) => (
+                                <div key={item.id} className="checklist-item-display completed"
+                                    onClick={(e) => e.stopPropagation()}
+                                    style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '4px', textDecoration: 'line-through', color: '#5f6368' }}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={item.checked}
+                                        onChange={(e) => {
+                                            e.stopPropagation();
+                                            const newItems = note.items.map(i =>
+                                                i.id === item.id ? { ...i, checked: e.target.checked } : i
+                                            );
+                                            onUpdate && onUpdate({ ...note, items: newItems });
+                                        }}
+                                        style={{ marginTop: '4px', marginRight: '8px', cursor: 'pointer' }}
+                                    />
+                                    <span style={{ flex: 1, wordBreak: 'break-word' }}>
+                                        <HighlightText text={item.text} highlight={searchQuery} />
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            ) : (
+                note.text && (
+                    <p className={`note-text ${shouldCollapse && isLongText ? 'collapsed-text' : ''}`}>
+                        <HighlightText text={note.text} highlight={searchQuery} />
+                    </p>
+                )
             )}
 
             {(isLongText || hasManyImages) && (

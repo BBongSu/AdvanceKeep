@@ -1,31 +1,23 @@
-import React, { useState } from 'react';
-import { FiImage, FiPlus, FiX, FiLoader, FiDroplet, FiTag } from 'react-icons/fi';
+import React, { useState, useRef, useEffect } from 'react';
+import { FiImage, FiPlus, FiX, FiLoader, FiDroplet, FiTag, FiCheckSquare } from 'react-icons/fi';
 import { useImageUpload } from '../../../hooks/useImageUpload';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import LabelPicker from './LabelPicker'; // Import LabelPicker
 import NoteLabels from './NoteLabels';
-
-const KEEP_COLORS = [
-  { name: 'Default', color: '' }, // 투명(테마 기본색)
-  { name: 'Red', color: '#f28b82' },
-  { name: 'Orange', color: '#fbbc04' },
-  { name: 'Yellow', color: '#fff475' },
-  { name: 'Green', color: '#ccff90' },
-  { name: 'Teal', color: '#a7ffeb' },
-  { name: 'Blue', color: '#cbf0f8' },
-  { name: 'Dark Blue', color: '#aecbfa' },
-  { name: 'Purple', color: '#d7aefb' },
-  { name: 'Pink', color: '#fdcfe8' },
-  { name: 'Brown', color: '#e6c9a8' },
-  { name: 'Gray', color: '#e8eaed' },
-];
+import ChecklistInputItem from './ChecklistInputItem';
+import ColorPicker from './ColorPicker';
+import { v4 as uuidv4 } from 'uuid';
+import { useLocation } from 'react-router-dom';
 
 const LAST_COLOR_KEY = 'advancekeep-last-color';
 
 function NoteForm({ onAdd, addingNote }) {
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
+  const [mode, setMode] = useState('text'); // 'text' | 'checklist'
+  const [checklistItems, setChecklistItems] = useState([{ id: uuidv4(), text: '', checked: false }]);
+
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -36,6 +28,21 @@ function NoteForm({ onAdd, addingNote }) {
   // 기본값은 투명(테마 배경색 따름)으로 설정
   const [color, setColor] = useState('');
   const { selectedImages, handleImageSelect, clearImages, removeImage, uploading } = useImageUpload();
+  const textareaRef = useRef(null);
+  const location = useLocation();
+  const isTodoPage = location.pathname === '/todo';
+
+  // 페이지 이동 시 모드 초기화 또는 자동 설정
+  useEffect(() => {
+    if (isTodoPage) {
+      setMode('checklist');
+      if (checklistItems.length === 0) {
+        setChecklistItems([{ id: uuidv4(), text: '', checked: false }]);
+      }
+    } else {
+      setMode('text');
+    }
+  }, [isTodoPage]);
 
   const handleImageChange = (e) => {
     const files = e.target.files;
@@ -44,20 +51,90 @@ function NoteForm({ onAdd, addingNote }) {
     }
   };
 
+  const startChecklistMode = () => {
+    setMode('checklist');
+    setChecklistItems([{ id: uuidv4(), text: '', checked: false }]);
+  };
+
+  // 체크리스트 항목 텍스트 변경
+  const handleChecklistItemChange = (id, value) => {
+    setChecklistItems(prev => prev.map(item =>
+      item.id === id ? { ...item, text: value } : item
+    ));
+  };
+
+  // 체크리스트 키보드 동작 (Enter: 항목 추가, Backspace: 항목 삭제)
+  const handleChecklistKeyDown = (e, index) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const newItem = { id: uuidv4(), text: '', checked: false };
+      const newItems = [...checklistItems];
+      newItems.splice(index + 1, 0, newItem);
+      setChecklistItems(newItems);
+
+      // Focus next item logic would go here ideally
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('.checklist-input');
+        if (inputs[index + 1]) inputs[index + 1].focus();
+      }, 0);
+    } else if (e.key === 'Backspace' && checklistItems[index].text === '' && checklistItems.length > 1) {
+      e.preventDefault();
+      const newItems = checklistItems.filter((_, i) => i !== index);
+      setChecklistItems(newItems);
+
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('.checklist-input');
+        if (inputs[index - 1]) {
+          inputs[index - 1].focus();
+        } else if (inputs[0]) {
+          inputs[0].focus();
+        }
+      }, 0);
+    }
+  };
+
+  // 체크리스트 항목 완료 여부 토글
+  const handleChecklistToggle = (id) => {
+    setChecklistItems(prev => prev.map(item =>
+      item.id === id ? { ...item, checked: !item.checked } : item
+    ));
+  };
+
+  // 체크리스트 항목 삭제
+  const handleDeleteChecklistItem = (id) => {
+    if (checklistItems.length > 1) {
+      setChecklistItems(prev => prev.filter(item => item.id !== id));
+    }
+  };
+
   const onSubmit = (e) => {
     e.preventDefault();
-    if (!title.trim() && !text.trim() && selectedImages.length === 0) return;
+
+    // Validate based on mode
+    let isEmpty = false;
+    if (mode === 'text') {
+      isEmpty = !title.trim() && !text.trim() && selectedImages.length === 0;
+    } else {
+      const validItems = checklistItems.filter(item => item.text.trim());
+      isEmpty = !title.trim() && validItems.length === 0 && selectedImages.length === 0;
+    }
+
+    if (isEmpty) return;
 
     const noteData = {
       title,
-      text,
+      text: mode === 'text' ? text : null,
       images: selectedImages,
       color,
       labels: selectedLabelIds, // Save label IDs
+      type: mode === 'checklist' ? 'checklist' : 'text',
+      items: mode === 'checklist' ? checklistItems.filter(item => item.text.trim()) : null,
     };
 
     setTitle('');
     setText('');
+    setMode('text');
+    setChecklistItems([{ id: uuidv4(), text: '', checked: false }]);
     clearImages();
     setColor('');
     setShowColorPicker(false);
@@ -65,48 +142,6 @@ function NoteForm({ onAdd, addingNote }) {
     setSelectedLabelIds([]);
 
     onAdd(noteData);
-  };
-
-  // 간단한 서식 적용: 선택 영역을 토큰으로 감싸기
-  const wrapSelection = (prefix, suffix = prefix) => {
-    const el = textareaRef.current;
-    if (!el) return;
-    const { selectionStart, selectionEnd, value } = el;
-    const before = value.slice(0, selectionStart);
-    const selected = value.slice(selectionStart, selectionEnd);
-    const after = value.slice(selectionEnd);
-    const next = `${before}${prefix}${selected || ''}${suffix}${after}`;
-    setText(next);
-    // 선택 영역 유지
-    const cursor = selectionEnd + prefix.length + suffix.length;
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(cursor, cursor);
-    });
-  };
-
-  const applyBullet = (ordered = false) => {
-    const el = textareaRef.current;
-    if (!el) return;
-    const { selectionStart, selectionEnd, value } = el;
-    const lines = value.split('\n');
-    let start = selectionStart;
-    let end = selectionEnd;
-    let acc = 0;
-    const newLines = lines.map((line) => {
-      const lineStart = acc;
-      const lineEnd = acc + line.length;
-      acc += line.length + 1; // +1 for newline
-      const intersect = !(lineEnd < selectionStart || lineStart > selectionEnd);
-      if (!intersect) return line;
-      return ordered ? `1. ${line}` : `- ${line}`;
-    });
-    const next = newLines.join('\n');
-    setText(next);
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(start, end + (ordered ? 3 : 2) * (newLines.length));
-    });
   };
 
   return (
@@ -126,20 +161,42 @@ function NoteForm({ onAdd, addingNote }) {
           style={{ backgroundColor: 'transparent' }}
         />
 
-        <div className="markdown-editor">
-          <textarea
-            className="note-input"
-            placeholder="메모를 입력해주세요."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            disabled={addingNote}
-            rows={4}
-            style={{ backgroundColor: 'transparent' }}
-          />
-        </div>
+        {mode === 'text' ? (
+          <div className="markdown-editor">
+            <textarea
+              ref={textareaRef}
+              className="note-input"
+              placeholder="메모를 입력해주세요."
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              disabled={addingNote}
+              rows={4}
+              style={{ backgroundColor: 'transparent' }}
+            />
+          </div>
+        ) : (
+          <div className="checklist-container">
+            {checklistItems.map((item, index) => (
+              <ChecklistInputItem
+                key={item.id}
+                item={item}
+                onChange={handleChecklistItemChange}
+                onToggle={handleChecklistToggle}
+                onDelete={() => handleDeleteChecklistItem(item.id)}
+                onKeyDown={(e) => handleChecklistKeyDown(e, index)}
+                placeholder="할 일 항목"
+              />
+            ))}
+          </div>
+        )}
+
 
         <div className="input-hint">
-          <span className="hint-text">Enter: 줄바꿈</span>
+          {mode === 'text' ? (
+            <span className="hint-text">Enter: 줄바꿈</span>
+          ) : (
+            <span className="hint-text">Enter: 항목 추가, Backspace: 항목 삭제</span>
+          )}
         </div>
 
         {/* 선택된 라벨들을 표시, 공통 컴포넌트 사용 (삭제 기능 포함) */}
@@ -176,17 +233,6 @@ function NoteForm({ onAdd, addingNote }) {
 
         <div className="note-actions modal-actions">
           <div className="action-tools">
-            <label className="image-upload-btn" aria-label="이미지 첨부">
-              <FiImage size={20} />
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageChange}
-                disabled={addingNote || uploading}
-                style={{ display: 'none' }}
-              />
-            </label>
             <button
               type="button"
               className="image-upload-btn"
@@ -204,26 +250,14 @@ function NoteForm({ onAdd, addingNote }) {
               <FiTag size={20} />
             </button>
             {showColorPicker && (
-              <>
-                <div
-                  style={{ position: 'fixed', inset: 0, zIndex: 90 }}
-                  onClick={() => setShowColorPicker(false)}
-                />
-                <div className="color-picker-popover">
-                  {KEEP_COLORS.map((c) => (
-                    <div
-                      key={c.color}
-                      className={`color-option ${color === c.color ? 'selected' : ''}`}
-                      style={{ backgroundColor: c.color }}
-                      title={c.name}
-                      onClick={() => {
-                        setColor(c.color);
-                        setShowColorPicker(false);
-                      }}
-                    />
-                  ))}
-                </div>
-              </>
+              <ColorPicker
+                color={color}
+                onChange={(newColor) => {
+                  setColor(newColor);
+                  setShowColorPicker(false);
+                }}
+                onClose={() => setShowColorPicker(false)}
+              />
             )}
             {/* 라벨 선택 팝오버: 태그 아이콘 클릭 시 표시 */}
             {showLabelPicker && (
@@ -248,7 +282,7 @@ function NoteForm({ onAdd, addingNote }) {
           <button
             type="submit"
             className="add-btn"
-            disabled={addingNote || uploading || (!title.trim() && !text.trim() && selectedImages.length === 0)}
+            disabled={addingNote || uploading}
             aria-label="메모 추가"
           >
             {addingNote ? (

@@ -87,8 +87,10 @@ export const useNotes = () => {
    * @param {Array<string>} images - 이미지 배열(base64)
    * @param {string} color - 메모 배경색
    * @param {Array<string>} labels - 라벨 ID 배열
+   * @param {string} type - 메모 타입 ('text' | 'checklist')
+   * @param {Array} items - 체크리스트 아이템 배열
    */
-  const addNote = async (title, text, images = [], color = '#ffffff', labels = []) => {
+  const addNote = async (title, text, images = [], color = '#ffffff', labels = [], type = 'text', items = []) => {
     if (!user) {
       throw new Error('로그인이 필요합니다.');
     }
@@ -102,6 +104,8 @@ export const useNotes = () => {
       image: images?.[0] || null, // 기존 필드와 호환 유지
       color, // 배경색 저장
       labels, // 라벨 ID 배열함 저장
+      type, // 메모 타입 저장
+      items, // 체크리스트 아이템 저장
       createdAt: new Date().toISOString(),
       userId: user.id, // 기존 필드(소유자)
       ownerId: user.id, // 명확히 소유자를 구분하기 위한 필드

@@ -4,7 +4,7 @@ import { useSearch } from '../hooks/useSearch';
 import NoteForm from '../components/features/notes/NoteForm';
 import NoteCard from '../components/features/notes/NoteCard';
 import EditNoteModal from '../components/features/notes/EditNoteModal';
-import { useOutletContext, useParams } from 'react-router-dom';
+import { useOutletContext, useParams, useLocation } from 'react-router-dom';
 import { createNoteHandler, getEmptyStateMessage, showErrorAlert } from '../utils/noteHelpers';
 import Swal from 'sweetalert2';
 import { useAuth } from '../hooks/useAuth';
@@ -29,6 +29,7 @@ function Home() {
     const [editingNote, setEditingNote] = useState(null);
     const [addingNote, setAddingNote] = useState(false);
     const { user } = useAuth();
+    const location = useLocation();
 
     // 검색어 및 정렬 순서 가져오기 (상위 컴포넌트에서 전달)
     const { searchQuery, viewMode, sortOrder } = useOutletContext();
@@ -37,15 +38,27 @@ function Home() {
 
     // 휴지통과 보관함에 있지 않은 활성 메모만 필터링
     const activeNotes = useMemo(() => {
+        const isTodoPath = location.pathname === '/todo';
         return notes.filter(note => {
             if (note.inTrash) return false;
+
+            // 라벨 필터링이 있는 경우 (타입 구분 없이 모두 표시)
             if (labelId) {
                 return (note.labels || []).includes(labelId);
             }
+
+            // 할 일 목록 필터링
+            if (isTodoPath) {
+                return note.type === 'checklist';
+            } else {
+                // 메인 메모 페이지에서는 체크리스트 숨김
+                if (note.type === 'checklist') return false;
+            }
+
             if (note.isArchived) return false;
             return true;
         });
-    }, [notes, labelId]);
+    }, [notes, labelId, location.pathname]);
 
     const filteredNotes = useSearch(activeNotes, searchQuery);
 
@@ -83,6 +96,7 @@ function Home() {
             key={note.id}
             note={note}
             onEdit={setEditingNote}
+            onUpdate={handleUpdateNote}
             onDelete={handleDeleteNote}
             onArchive={handleArchiveNote}
             onShareToggle={handleShareToggle}
@@ -101,7 +115,15 @@ function Home() {
     const handleAddNote = async (noteData) => {
         setAddingNote(true);
         try {
-            await addNote(noteData.title, noteData.text, noteData.images, noteData.color, noteData.labels);
+            await addNote(
+                noteData.title,
+                noteData.text,
+                noteData.images,
+                noteData.color,
+                noteData.labels,
+                noteData.type,  // Pass type
+                noteData.items  // Pass items
+            );
         } catch {
             await showErrorAlert('추가 실패', '노트를 추가할 수 없습니다. 다시 시도해주세요.');
             return false;

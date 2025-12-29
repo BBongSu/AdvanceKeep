@@ -49,6 +49,7 @@ function App() {
               }
             >
               <Route index element={<Home />} />
+              <Route path="todo" element={<Home />} />
               <Route path="archive" element={<Archive />} />
               <Route path="trash" element={<Trash />} />
               <Route path="label/:labelId" element={<Home />} />
