@@ -70,32 +70,39 @@ npm start
 
 ```
 AdvanceKeep/
-├── public/              # 정적 파일 (이미지, 아이콘, favicon.svg 등)
+├── public/                  # 정적 파일 (이미지, 아이콘, favicon.svg 등)
+│
 ├── src/
-│   ├── assets/          # 프로젝트 내에서 사용되는 로컬 이미지 리소스
-│   ├── components/      # 재사용 가능한 UI 컴포넌트
-│   │   ├── common/      # 버튼, 모달 등 범용 컴포넌트
-│   │   ├── features/    # 핵심 기능 컴포넌트
-│   │   │   └── notes/   # 메모 관련 (NoteCard, NoteForm, EditNoteModal 등)
-│   │   └── layout/      # 레이아웃 컴포넌트 (Sidebar, Header, Layout)
-│   ├── constants/       # 상수 모음 (메뉴명, 색상 팔레트 등)
-│   ├── hooks/           # 커스텀 React Hooks
+│   ├── assets/              # 프로젝트 내에서 사용되는 로컬 이미지 리소스
+│   │
+│   ├── components/          # 재사용 가능한 UI 컴포넌트
+│   │   ├── common/          # 버튼, 모달 등 범용 컴포넌트
+│   │   ├── features/        # 핵심 기능 컴포넌트 (NoteCard, NoteForm 등)
+│   │   └── layout/          # 레이아웃 컴포넌트 (Sidebar, Header, Layout)
+│   │
+│   ├── constants/           # 상수 모음 (메뉴명, 색상 팔레트 등)
+│   │
+│   ├── hooks/               # 커스텀 React Hooks
 │   │   ├── useAuth.jsx      # 인증 상태 관리
 │   │   ├── useNotes.js      # 메모 CRUD 및 실시간 동기화 로직
 │   │   └── useImageUpload.js # 이미지 업로드 및 변환 로직
-│   ├── pages/           # 라우팅 페이지 컴포넌트
-│   │   ├── Home.jsx     # 메인 메모 목록 및 라벨 필터링 뷰
-│   │   ├── Login.jsx    # 로그인 및 회원가입
+│   │
+│   ├── pages/               # 라우팅 페이지 컴포넌트
+│   │   ├── Home.jsx         # 메인 메모 목록 및 라벨 필터링 뷰
+│   │   ├── Login.jsx        # 로그인 및 회원가입
 │   │   └── Trash.jsx, Archive.jsx # 휴지통, 보관함
-│   ├── services/        # 외부 서비스 연동
-│   │   ├── api.js       # Firebase Firestore 데이터베이스 연동
-│   │   └── auth.js      # Firebase Authentication 인증 연동
-│   ├── utils/           # 유틸리티 함수 (날짜 변환, 에러 처리 등)
-│   ├── App.jsx          # 앱 라우팅 및 전역 상태 공급 (Context Provider)
-│   ├── index.css        # 전역 스타일 및 CSS 변수 (다크모드 포함)
-│   └── main.jsx         # React 앱 진입점 (DOM 렌더링)
-├── index.html           # HTML 진입점
-├── package.json         # 프로젝트 의존성 및 스크립트 정보
-├── firebase.json        # Firebase Hosting 및 Firestore 설정
-└── vite.config.js       # Vite 빌드 도구 설정
+│   │
+│   ├── services/            # 외부 서비스 연동
+│   │   ├── api.js           # Firebase Firestore 데이터베이스 연동
+│   │   └── auth.js          # Firebase Authentication 인증 연동
+│   │
+│   ├── utils/               # 유틸리티 함수 (날짜 변환, 에러 처리 등)
+│   ├── App.jsx              # 앱 라우팅 및 전역 상태 공급 (Context Provider)
+│   ├── index.css            # 전역 스타일 및 CSS 변수 (다크모드 포함)
+│   └── main.jsx             # React 앱 진입점 (DOM 렌더링)
+│
+├── index.html               # HTML 진입점
+├── package.json             # 프로젝트 의존성 및 스크립트 정보
+├── firebase.json            # Firebase Hosting 및 Firestore 설정
+└── vite.config.js           # Vite 빌드 도구 설정
 ```
