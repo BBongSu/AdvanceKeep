@@ -228,6 +228,7 @@ function NoteCard({
                         setExpanded((prev) => !prev);
                     }}
                     aria-label={expanded ? '내용 접기' : '내용 더보기'}
+                    title={expanded ? '내용 접기' : '내용 더보기'}
                 >
                     {expanded ? '접기' : '더보기'}
                 </button>

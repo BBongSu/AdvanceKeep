@@ -155,6 +155,7 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
                 type="button"
                 onClick={() => removeImage(idx)}
                 className="remove-image-btn"
+                title="이미지 삭제"
                 aria-label="이미지 삭제"
               >
                 <FiX size={16} />
@@ -223,6 +224,7 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
                   const newItem = { id: uuidv4(), text: '', checked: false };
                   setChecklistItems([...checklistItems, newItem]);
                 }}
+                title="항목 추가"
                 style={{ display: 'flex', alignItems: 'center', border: 'none', background: 'transparent', cursor: 'pointer', padding: '8px 0', opacity: 0.6, marginTop: '8px' }}
               >
                 <FiPlus style={{ marginRight: '8px' }} /> 항목 추가
@@ -254,6 +256,7 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
             <button
               type="button"
               className="image-upload-btn"
+              title="배경색 변경"
               aria-label="배경색 변경"
               onClick={() => setShowColorPicker(!showColorPicker)}
             >
@@ -262,6 +265,7 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
             <button
               type="button"
               className="image-upload-btn"
+              title="라벨 추가"
               aria-label="라벨 추가"
               onClick={() => setShowLabelPicker(!showLabelPicker)}
             >
@@ -295,8 +299,8 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
               </>
             )}
           </div>
-          <button className="close-btn" onClick={onClose}>취소</button>
-          <button className="close-btn primary" onClick={handleSave}>저장</button>
+          <button className="close-btn" onClick={onClose} title="취소">취소</button>
+          <button className="close-btn primary" onClick={handleSave} title="저장">저장</button>
         </div>
 
         {/* 이미지 라이트박스 */}

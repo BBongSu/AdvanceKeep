@@ -249,6 +249,7 @@ function NoteForm({ onAdd, addingNote, defaultLabelId }) {
                 type="button"
                 onClick={() => removeImage(idx)}
                 className="remove-image-btn"
+                title="이미지 삭제"
                 aria-label="이미지 삭제"
               >
                 <FiX size={16} />
@@ -262,6 +263,7 @@ function NoteForm({ onAdd, addingNote, defaultLabelId }) {
             <button
               type="button"
               className="image-upload-btn"
+              title="배경색 변경"
               aria-label="배경색 변경"
               onClick={() => setShowColorPicker(!showColorPicker)}
             >
@@ -270,6 +272,7 @@ function NoteForm({ onAdd, addingNote, defaultLabelId }) {
             <button
               type="button"
               className="image-upload-btn"
+              title="라벨 추가"
               aria-label="라벨 추가"
               onClick={() => setShowLabelPicker(!showLabelPicker)}
             >
@@ -318,6 +321,7 @@ function NoteForm({ onAdd, addingNote, defaultLabelId }) {
             type="submit"
             className="add-btn"
             disabled={addingNote || uploading}
+            title="메모 작성"
             aria-label="메모 추가"
           >
             {addingNote ? (

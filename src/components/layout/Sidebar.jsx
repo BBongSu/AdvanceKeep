@@ -28,6 +28,7 @@ const Sidebar = ({ isOpen, onMenuClick }) => {
         <div
           className="sidebar-overlay"
           onClick={() => onMenuClick && onMenuClick(null)} // 사이드바 닫기
+          title="사이드바 닫기"
           aria-label="사이드바 닫기"
         />
       )}
@@ -68,6 +69,7 @@ const Sidebar = ({ isOpen, onMenuClick }) => {
           <button
             className="sidebar-item"
             onClick={() => setIsLabelModalOpen(true)}
+            title="라벨 수정"
             style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit' }}
           >
             <div className="sidebar-icon">

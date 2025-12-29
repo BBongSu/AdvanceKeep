@@ -37,6 +37,7 @@ const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onTogg
         <button
           className="icon-btn hamburger-btn"
           onClick={toggleSidebar}
+          title="메인 메뉴"
           aria-label="메뉴 열기"
         >
           <FiMenu size={24} />
@@ -61,6 +62,7 @@ const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onTogg
               className="search-clear-btn"
               onClick={handleClearSearch}
               type="button"
+              title="검색어 지우기"
               aria-label="검색어 지우기"
             >
               <FiX size={18} />
@@ -92,6 +94,7 @@ const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onTogg
         <button
           className="icon-btn dark-mode-btn"
           onClick={onToggleDarkMode}
+          title={isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
           aria-label={isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
         >
           {isDarkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
@@ -102,6 +105,7 @@ const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onTogg
               className="profile-avatar"
               onClick={() => setProfileOpen((prev) => !prev)}
               type="button"
+              title={user.name + ' 계정 메뉴'}
               aria-label="프로필 메뉴 열기"
             >
               {avatarLabel}
@@ -112,7 +116,7 @@ const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onTogg
                   <div className="profile-name">{user.name || '이름 없음'}</div>
                   <div className="profile-email">{user.email}</div>
                 </div>
-                <button className="profile-logout" onClick={handleLogout} type="button">
+                <button className="profile-logout" onClick={handleLogout} type="button" title="로그아웃">
                   <FiLogOut size={16} />
                   <span>로그아웃</span>
                 </button>

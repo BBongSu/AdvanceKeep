@@ -61,13 +61,13 @@ const LabelManagerModal = ({ onClose }) => {
             <div className="modal-content label-manager-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
                     <h3>라벨 수정</h3>
-                    <button onClick={onClose} className="close-btn-icon"><FiX size={20} /></button>
+                    <button onClick={onClose} className="close-btn-icon" title="닫기"><FiX size={20} /></button>
                 </div>
 
                 <div className="label-manager-body">
                     {/* 새 라벨 추가 */}
                     <div className="label-row new-label-row">
-                        <button className="icon-btn-small" onClick={() => setNewLabelName('')}>
+                        <button className="icon-btn-small" onClick={() => setNewLabelName('')} title={newLabelName ? "입력 취소" : "새 라벨"}>
                             {newLabelName ? <FiX size={16} /> : <FiPlus size={20} />}
                         </button>
                         <input
@@ -81,6 +81,7 @@ const LabelManagerModal = ({ onClose }) => {
                         <button
                             className="icon-btn-small confirm-check"
                             disabled={!newLabelName.trim()}
+                            title="라벨 생성"
                             onClick={() => {
                                 if (newLabelName.trim()) {
                                     addLabel(newLabelName);
@@ -97,7 +98,7 @@ const LabelManagerModal = ({ onClose }) => {
                             <div key={label.id} className="label-row">
                                 {editingId === label.id ? (
                                     <>
-                                        <button className="icon-btn-small" onClick={() => removeLabel(label.id)}>
+                                        <button className="icon-btn-small" onClick={() => removeLabel(label.id)} title="라벨 삭제">
                                             <FiTrash2 size={16} />
                                         </button>
                                         <input
@@ -110,6 +111,7 @@ const LabelManagerModal = ({ onClose }) => {
                                         <button
                                             className="icon-btn-small confirm-check"
                                             onClick={() => handleUpdate(label.id)}
+                                            title="이름 수정 변경"
                                         >
                                             <FiCheck size={18} />
                                         </button>
@@ -128,6 +130,7 @@ const LabelManagerModal = ({ onClose }) => {
                                         <button
                                             className="icon-btn-small edit-icon-btn"
                                             onClick={() => startEditing(label)}
+                                            title="라벨 이름 수정"
                                         >
                                             <FiEdit2 size={16} />
                                         </button>
@@ -139,7 +142,7 @@ const LabelManagerModal = ({ onClose }) => {
                 </div>
 
                 <div className="modal-footer line-top">
-                    <button className="btn-text" onClick={onClose}>완료</button>
+                    <button className="btn-text" onClick={onClose} title="완료">완료</button>
                 </div>
             </div>
         </div>

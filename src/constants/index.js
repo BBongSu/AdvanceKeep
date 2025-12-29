@@ -18,16 +18,16 @@ export const MENU_LABELS = {
 };
 
 export const KEEP_COLORS = [
-  { name: 'Default', color: '' }, // 투명(테마 기본색)
-  { name: 'Red', color: 'var(--note-red)' },
-  { name: 'Orange', color: 'var(--note-orange)' },
-  { name: 'Yellow', color: 'var(--note-yellow)' },
-  { name: 'Green', color: 'var(--note-green)' },
-  { name: 'Teal', color: 'var(--note-teal)' },
-  { name: 'Blue', color: 'var(--note-blue)' },
-  { name: 'Dark Blue', color: 'var(--note-dark-blue)' },
-  { name: 'Purple', color: 'var(--note-purple)' },
-  { name: 'Pink', color: 'var(--note-pink)' },
-  { name: 'Brown', color: 'var(--note-brown)' },
-  { name: 'Gray', color: 'var(--note-gray)' },
+  { name: '기본', color: '' }, // 투명(테마 기본색)
+  { name: '빨강', color: 'var(--note-red)' },
+  { name: '주황', color: 'var(--note-orange)' },
+  { name: '노랑', color: 'var(--note-yellow)' },
+  { name: '초록', color: 'var(--note-green)' },
+  { name: '청록', color: 'var(--note-teal)' },
+  { name: '파랑', color: 'var(--note-blue)' },
+  { name: '진한 파랑', color: 'var(--note-dark-blue)' },
+  { name: '보라', color: 'var(--note-purple)' },
+  { name: '분홍', color: 'var(--note-pink)' },
+  { name: '갈색', color: 'var(--note-brown)' },
+  { name: '회색', color: 'var(--note-gray)' },
 ];
