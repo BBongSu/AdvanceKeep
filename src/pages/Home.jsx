@@ -309,6 +309,13 @@ function Home() {
                 </div>
             )}
 
+            {/* 로딩 중 메시지 */}
+            {loading && !addingNote && (
+                <div className="empty-state">
+                    <p>데이터를 불러오는 중입니다...</p>
+                </div>
+            )}
+
             {/* 빈 상태 메시지 */}
             {isEmpty && (
                 <div className="empty-state">

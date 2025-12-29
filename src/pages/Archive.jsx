@@ -73,6 +73,12 @@ function Archive() {
                 ))}
             </div>
 
+            {loading && (
+                <div className="empty-state">
+                    <p>데이터를 불러오는 중입니다...</p>
+                </div>
+            )}
+
             {/* 빈 상태 메시지 */}
             {isEmpty && (
                 <div className="empty-state">

@@ -6,7 +6,7 @@ import { useOutletContext } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 function Trash() {
-    const { restoreNote, deleteForever, notes } = useNotes();
+    const { restoreNote, deleteForever, notes, loading } = useNotes();
     const { searchQuery, sortOrder } = useOutletContext();
 
     // Filter notes that are in trash and sort
@@ -59,7 +59,7 @@ function Trash() {
         }
     };
 
-    const isEmpty = sortedNotes.length === 0;
+    const isEmpty = sortedNotes.length === 0 && !loading;
     const hasSearchQuery = searchQuery && searchQuery.trim().length > 0;
 
     return (
@@ -76,6 +76,12 @@ function Trash() {
                     />
                 ))}
             </div>
+
+            {loading && (
+                <div className="empty-state">
+                    <p>데이터를 불러오는 중입니다...</p>
+                </div>
+            )}
 
             {isEmpty && (
                 <div className="empty-state">
