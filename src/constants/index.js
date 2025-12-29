@@ -19,15 +19,15 @@ export const MENU_LABELS = {
 
 export const KEEP_COLORS = [
   { name: 'Default', color: '' }, // 투명(테마 기본색)
-  { name: 'Red', color: '#f28b82' },
-  { name: 'Orange', color: '#fbbc04' },
-  { name: 'Yellow', color: '#fff475' },
-  { name: 'Green', color: '#ccff90' },
-  { name: 'Teal', color: '#a7ffeb' },
-  { name: 'Blue', color: '#cbf0f8' },
-  { name: 'Dark Blue', color: '#aecbfa' },
-  { name: 'Purple', color: '#d7aefb' },
-  { name: 'Pink', color: '#fdcfe8' },
-  { name: 'Brown', color: '#e6c9a8' },
-  { name: 'Gray', color: '#e8eaed' },
+  { name: 'Red', color: 'var(--note-red)' },
+  { name: 'Orange', color: 'var(--note-orange)' },
+  { name: 'Yellow', color: 'var(--note-yellow)' },
+  { name: 'Green', color: 'var(--note-green)' },
+  { name: 'Teal', color: 'var(--note-teal)' },
+  { name: 'Blue', color: 'var(--note-blue)' },
+  { name: 'Dark Blue', color: 'var(--note-dark-blue)' },
+  { name: 'Purple', color: 'var(--note-purple)' },
+  { name: 'Pink', color: 'var(--note-pink)' },
+  { name: 'Brown', color: 'var(--note-brown)' },
+  { name: 'Gray', color: 'var(--note-gray)' },
 ];
