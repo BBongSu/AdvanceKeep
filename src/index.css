@@ -21,7 +21,7 @@
   --checkbox-color: #5f6368;
   --checkbox-checked: #667eea;
 
-  /* Note Colors (Light Mode) */
+  /* 메모 색상 (라이트 모드) */
   --note-red: #f28b82;
   --note-orange: #fbbc04;
   --note-yellow: #fff475;
@@ -35,7 +35,7 @@
   --note-gray: #e8eaed;
 }
 
-/* Custom Checkbox Styles */
+/* 커스텀 체크박스 스타일 */
 input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
@@ -68,7 +68,7 @@ input[type="checkbox"]:checked::after {
   transform: rotate(45deg);
 }
 
-/* Increase hit area */
+/* 클릭 영역 확대 */
 input[type="checkbox"]::before {
   content: '';
   position: absolute;
@@ -91,7 +91,7 @@ input[type="checkbox"]::before {
   --hover-bg: rgba(255, 255, 255, 0.1);
   --sidebar-active: #41331c;
 
-  /* Note Colors (Dark Mode) */
+  /* 메모 색상 (다크 모드) */
   --note-red: #5c2b29;
   --note-orange: #614a19;
   --note-yellow: #635d19;
@@ -285,7 +285,7 @@ body {
   background-color: var(--hover-bg);
 }
 
-/* Sidebar Styles */
+/* 사이드바 스타일 */
 .sidebar-overlay {
   position: fixed;
   top: 0;
@@ -563,7 +563,7 @@ body {
   width: 100%;
 }
 
-/* Staggered animation for notes */
+/* 메모 카드 순차적 애니메이션 */
 .notes-grid .note-card:nth-child(1) {
   animation-delay: 0s;
 }
