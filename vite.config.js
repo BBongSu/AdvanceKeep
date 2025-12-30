@@ -10,7 +10,7 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
           firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
-          ui: ['sweetalert2', 'yet-another-react-lightbox'],
+          ui: ['sweetalert2', 'react-icons', 'yet-another-react-lightbox'],
         },
       },
     },
