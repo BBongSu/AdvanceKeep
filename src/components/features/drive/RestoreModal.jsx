@@ -27,18 +27,46 @@ const RestoreModal = ({ onClose }) => {
             return;
         }
 
+        if (file.size === 0) {
+            setErrorMsg("파일이 비어있습니다. 올바른 백업 파일을 선택해주세요.");
+            setStep('ERROR');
+            return;
+        }
+
         const reader = new FileReader();
+
+        reader.onabort = () => {
+            setErrorMsg("파일 읽기가 중단되었습니다.");
+            setStep('ERROR');
+        };
+
+        reader.onerror = () => {
+            setErrorMsg("파일을 읽는 중 오류가 발생했습니다.");
+            setStep('ERROR');
+        };
+
         reader.onload = (e) => {
+            const content = e.target.result;
+            if (!content) {
+                setErrorMsg("파일 내용을 읽을 수 없습니다.");
+                setStep('ERROR');
+                return;
+            }
+
             try {
-                const json = JSON.parse(e.target.result);
+                const json = JSON.parse(content);
                 if (!json.data || !json.data.notes) {
-                    throw new Error("유효하지 않은 백업 파일 형식입니다.");
+                    throw new Error("유효하지 않은 백업 데이터 형식입니다.");
                 }
                 setBackupData(json);
                 setStep('CONFIRM');
             } catch (err) {
                 console.error(err);
-                setErrorMsg("파일을 읽는 중 오류가 발생했습니다: " + err.message);
+                if (err instanceof SyntaxError) {
+                    setErrorMsg("JSON 파싱 오류: 파일이 손상되었거나 올바른 형식이 아닙니다.");
+                } else {
+                    setErrorMsg("데이터 검증 오류: " + err.message);
+                }
                 setStep('ERROR');
             }
         };

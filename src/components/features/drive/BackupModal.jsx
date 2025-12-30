@@ -27,8 +27,25 @@ const BackupModal = ({ onClose }) => {
             const data = await exportBackupData(user.id);
             const jsonString = JSON.stringify(data, null, 2);
 
+            // 헬퍼: 레거시 다운로드 방식 (Fallback)
+            // Fix: 모바일(삼성인터넷 등)에서 Blob URL 사용 시 0바이트 저장 문제 해결을 위해 Data URI 방식 사용
+            const triggerLegacyDownload = () => {
+                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(jsonString);
+
+                const link = document.createElement("a");
+                link.href = dataUri;
+                link.download = filename;
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                setStep('SUCCESS');
+            };
+
             // Modern API: File System Access API (Chrome, Edge, Opera)
-            if (window.showSaveFilePicker) {
+            // 주의: 모바일 브라우저(삼성 인터넷 등)에서 API는 존재하지만 권한 문제로 실패할 수 있음.
+            if ('showSaveFilePicker' in window) {
                 try {
                     const handle = await window.showSaveFilePicker({
                         suggestedName: filename,
@@ -43,25 +60,17 @@ const BackupModal = ({ onClose }) => {
                     setStep('SUCCESS');
                 } catch (err) {
                     if (err.name === 'AbortError') {
-                        // 사용자가 취소함 -> 초기 화면으로 복귀
+                        // 사용자가 저장을 취소한 경우 -> 초기 화면으로 복귀
                         setStep('CONFIRM');
                     } else {
-                        throw err;
+                        // 그 외 오류(권한 거부, 지원되지 않는 컨텍스트 등) -> 레거시 방식으로 시도
+                        console.warn("File System Access API failed, falling back to legacy download:", err);
+                        triggerLegacyDownload();
                     }
                 }
             } else {
                 // Fallback: Legacy Anchor Download (Firefox, Safari, Mobile)
-                // 저장을 취소했는지 알 수 없음.
-                const blob = new Blob([jsonString], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement("a");
-                link.href = url;
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-                setStep('SUCCESS');
+                triggerLegacyDownload();
             }
         } catch (err) {
             console.error(err);
