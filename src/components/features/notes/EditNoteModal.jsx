@@ -77,24 +77,21 @@ const EditNoteModal = ({ note, onUpdate, onClose }) => {
     }
   };
 
-  const handleSave = async () => {
-    try {
-      const ok = await onUpdate({
-        ...note,
-        title,
-        text: isChecklist ? null : text,
-        items: isChecklist ? checklistItems.filter(item => item.text.trim()) : null,
-        images: selectedImages,
-        image: selectedImages?.[0] || null, // 기존 필드 호환
-        color,
-        labels: selectedLabelIds, // 수정된 라벨 목록 저장
-      });
-      if (ok !== false) {
-        onClose();
-      }
-    } catch {
-      // 상위 onUpdate에서 처리하도록 조용히 무시
-    }
+  const handleSave = () => {
+    // 낙관적 업데이트 (Optimistic Update):
+    // 서버 응답을 기다리지 않고 즉시 닫습니다.
+    // 에러 발생 시 상위 핸들러(noteHelpers)에서 Swal Alert가 발생합니다.
+    onUpdate({
+      ...note,
+      title,
+      text: isChecklist ? null : text,
+      items: isChecklist ? checklistItems.filter(item => item.text.trim()) : null,
+      images: selectedImages,
+      image: selectedImages?.[0] || null, // 기존 필드 호환
+      color,
+      labels: selectedLabelIds, // 수정된 라벨 목록 저장
+    });
+    onClose();
   };
 
   const mouseDownTarget = React.useRef(null);
