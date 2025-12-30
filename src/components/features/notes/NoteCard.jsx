@@ -157,8 +157,14 @@ function NoteCard({
                     {/* Active Items */}
                     {note.items.filter(item => !item.checked).map((item) => (
                         <div key={item.id} className="checklist-item-display"
-                            onClick={(e) => e.stopPropagation()}
-                            style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '4px' }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                const newItems = note.items.map(i =>
+                                    i.id === item.id ? { ...i, checked: !item.checked } : i
+                                );
+                                onUpdate && onUpdate({ ...note, items: newItems });
+                            }}
+                            style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '4px', cursor: 'pointer' }}
                         >
                             <input
                                 type="checkbox"
@@ -188,8 +194,14 @@ function NoteCard({
                             </div>
                             {note.items.filter(item => item.checked).map((item) => (
                                 <div key={item.id} className="checklist-item-display completed"
-                                    onClick={(e) => e.stopPropagation()}
-                                    style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '4px', textDecoration: 'line-through', color: '#5f6368' }}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        const newItems = note.items.map(i =>
+                                            i.id === item.id ? { ...i, checked: !item.checked } : i
+                                        );
+                                        onUpdate && onUpdate({ ...note, items: newItems });
+                                    }}
+                                    style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '4px', textDecoration: 'line-through', color: '#5f6368', cursor: 'pointer' }}
                                 >
                                     <input
                                         type="checkbox"
