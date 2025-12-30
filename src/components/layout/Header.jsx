@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FiMenu, FiSearch, FiX, FiMoon, FiSun, FiFileText, FiLogOut, FiGrid, FiList, FiClock } from 'react-icons/fi';
+import { FiMenu, FiSearch, FiX, FiMoon, FiSun, FiFileText, FiLogOut, FiGrid, FiList, FiClock, FiCloud, FiCloudOff, FiUpload, FiDownload } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import CloudMenu from './CloudMenu';
 
 const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onToggleDarkMode, viewMode, onViewModeChange, sortOrder, onSortOrderChange }) => {
   const { user, logout } = useAuth();
@@ -71,6 +72,7 @@ const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onTogg
         </div>
       </div>
       <div className="header-right">
+        <CloudMenu />
         {onSortOrderChange && (
           <button
             className="icon-btn sort-order-btn"
