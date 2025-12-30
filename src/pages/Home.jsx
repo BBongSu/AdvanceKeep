@@ -41,6 +41,8 @@ function Home() {
         const isTodoPath = location.pathname === '/todo';
         return notes.filter(note => {
             if (note.inTrash) return false;
+            // 모든 뷰에서 보관된 메모는 제외 (보관함 페이지는 별도 존재)
+            if (note.isArchived) return false;
 
             // 라벨 필터링이 있는 경우 (타입 구분 없이 모두 표시)
             if (labelId) {
@@ -55,7 +57,6 @@ function Home() {
                 if (note.type === 'checklist') return false;
             }
 
-            if (note.isArchived) return false;
             return true;
         });
     }, [notes, labelId, location.pathname]);
