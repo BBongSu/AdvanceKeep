@@ -17,7 +17,7 @@ function Archive() {
     const [addingNote, setAddingNote] = useState(false);
 
     // 검색어 및 정렬 순서 가져오기 (상위 컴포넌트에서 전달)
-    const { searchQuery, sortOrder } = useOutletContext();
+    const { searchQuery, sortOrder, viewMode } = useOutletContext();
 
     // 보관되었지만 휴지통에 있지 않은 메모만 필터링 및 정렬
     const archivedNotes = notes.filter(note => note.isArchived && !note.inTrash);
@@ -58,7 +58,7 @@ function Archive() {
     return (
         <>
             {/* 메모 그리드 */}
-            <div className="notes-grid">
+            <div className={`notes-grid ${viewMode === 'list' ? 'list-view' : ''}`}>
                 {sortedNotes.map((note) => (
                     <NoteCard
                         key={note.id}

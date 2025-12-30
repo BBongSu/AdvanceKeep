@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 
 function Trash() {
     const { restoreNote, deleteForever, notes, loading } = useNotes();
-    const { searchQuery, sortOrder } = useOutletContext();
+    const { searchQuery, sortOrder, viewMode } = useOutletContext();
 
     // Filter notes that are in trash and sort
     const trashedNotes = notes.filter(note => note.inTrash);
@@ -80,7 +80,7 @@ function Trash() {
                 </div>
             )}
 
-            <div className="notes-grid">
+            <div className={`notes-grid ${viewMode === 'list' ? 'list-view' : ''}`}>
                 {sortedNotes.map((note) => (
                     <NoteCard
                         key={note.id}
