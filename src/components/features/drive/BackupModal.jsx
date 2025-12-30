@@ -18,7 +18,7 @@ const BackupModal = ({ onClose }) => {
             String(now.getHours()).padStart(2, '0') +
             String(now.getMinutes()).padStart(2, '0') +
             String(now.getSeconds()).padStart(2, '0');
-        setFilename(`advancekeep_${dateStr}.db`);
+        setFilename(`advancekeep_${dateStr}.json`);
     }, []);
 
     const handleBackupStart = async () => {
@@ -33,8 +33,8 @@ const BackupModal = ({ onClose }) => {
                     const handle = await window.showSaveFilePicker({
                         suggestedName: filename,
                         types: [{
-                            description: 'AdvanceKeep Backup DB',
-                            accept: { 'application/json': ['.db'] },
+                            description: 'AdvanceKeep Backup File',
+                            accept: { 'application/json': ['.json'] },
                         }],
                     });
                     const writable = await handle.createWritable();

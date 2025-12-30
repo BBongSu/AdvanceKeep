@@ -21,6 +21,12 @@ const RestoreModal = ({ onClose }) => {
     };
 
     const parseFile = (file) => {
+        if (!file.name.endsWith('.json')) {
+            setErrorMsg("올바른 백업 파일(.json)이 아닙니다.");
+            setStep('ERROR');
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
@@ -63,13 +69,13 @@ const RestoreModal = ({ onClose }) => {
                 {step === 'INIT' && (
                     <div style={{ textAlign: 'center', padding: '20px 0' }}>
                         <p style={{ marginBottom: '24px', color: 'var(--text-secondary)' }}>
-                            컴퓨터에 저장된 백업 파일(.db)을 선택해주세요.
+                            컴퓨터에 저장된 백업 파일(.json)을 선택해주세요.
                         </p>
 
                         <input
                             type="file"
                             ref={fileInputRef}
-                            accept=".db"
+                            accept=".json"
                             style={{ display: 'none' }}
                             onChange={handleFileChange}
                         />
@@ -79,7 +85,7 @@ const RestoreModal = ({ onClose }) => {
                             style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                             onClick={() => fileInputRef.current.click()}
                         >
-                            <FiUpload /> 파일 선택
+                            <FiUpload /> 파일 선택 (.json)
                         </button>
                     </div>
                 )}
