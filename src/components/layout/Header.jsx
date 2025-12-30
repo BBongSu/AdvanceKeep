@@ -73,6 +73,14 @@ const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onTogg
       </div>
       <div className="header-right">
         <CloudMenu />
+        <button
+          className="icon-btn dark-mode-btn"
+          onClick={onToggleDarkMode}
+          title={isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
+          aria-label={isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
+        >
+          {isDarkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
+        </button>
         {onSortOrderChange && (
           <button
             className="icon-btn sort-order-btn"
@@ -93,14 +101,6 @@ const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onTogg
             {viewMode === 'list' ? <FiGrid size={20} /> : <FiList size={20} />}
           </button>
         )}
-        <button
-          className="icon-btn dark-mode-btn"
-          onClick={onToggleDarkMode}
-          title={isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
-          aria-label={isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
-        >
-          {isDarkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
-        </button>
         {user ? (
           <div className="profile-wrapper" ref={profileRef}>
             <button

@@ -76,6 +76,26 @@ export const useNotes = () => {
     };
   }, [user?.id]);
 
+  // 30일이 지난 휴지통 메모 자동 삭제
+  useEffect(() => {
+    if (loading || notes.length === 0) return;
+
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+    const now = new Date().getTime();
+
+    const expiredNotes = notes.filter(note => {
+      if (!note.inTrash || !note.deletedAt) return false;
+      const deletedTime = new Date(note.deletedAt).getTime();
+      return (now - deletedTime) > THIRTY_DAYS_MS;
+    });
+
+    if (expiredNotes.length > 0) {
+      expiredNotes.forEach(note => {
+        deleteForever(note.id);
+      });
+    }
+  }, [notes, loading]);
+
 
 
   /**
@@ -172,7 +192,11 @@ export const useNotes = () => {
     const noteToTrash = notes.find((n) => n.id === id);
     if (!noteToTrash) return;
 
-    const updatedNote = { ...noteToTrash, inTrash: true };
+    const updatedNote = {
+      ...noteToTrash,
+      inTrash: true,
+      deletedAt: new Date().toISOString() // 삭제 시간 기록
+    };
     await updateNote(updatedNote);
   };
 
@@ -184,7 +208,11 @@ export const useNotes = () => {
     const noteToRestore = notes.find((n) => n.id === id);
     if (!noteToRestore) return;
 
-    const updatedNote = { ...noteToRestore, inTrash: false };
+    const updatedNote = {
+      ...noteToRestore,
+      inTrash: false,
+      deletedAt: null // 삭제 시간 초기화
+    };
     await updateNote(updatedNote);
   };
 

@@ -64,6 +64,22 @@ function Trash() {
 
     return (
         <>
+            {trashedNotes.length > 0 && (
+                <div style={{
+                    width: '100%',
+                    textAlign: 'center',
+                    padding: '12px',
+                    marginBottom: '24px',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    color: '#ef4444',
+                    borderRadius: '8px',
+                    fontSize: '0.9rem',
+                    fontWeight: 500
+                }}>
+                    휴지통의 메모는 30일 후 자동으로 삭제됩니다.
+                </div>
+            )}
+
             <div className="notes-grid">
                 {sortedNotes.map((note) => (
                     <NoteCard
