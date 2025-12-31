@@ -44,6 +44,7 @@ npm start
 *   **검색 엔진 최적화 (SEO)**: 메타 태그 및 Open Graph 설정으로 공유 편의성 증대.
 *   **휴지통 자동 비우기**: 30일이 지난 메모 자동 영구 삭제 기능.
 *   **다크 모드 및 반응형**: 눈의 피로를 줄이는 다크 모드와 다양한 모바일 기기에 최적화된 레이아웃을 제공합니다.
+*   **모바일 앱 지원 (Android/iOS)**: Capacitor를 통해 웹 앱을 네이티브 모바일 애플리케이션으로 패키징하여 사용할 수 있습니다.
 
 ---
 
@@ -54,6 +55,7 @@ npm start
 *   **Routing**: React Router v7
 *   **Styling**: CSS Modules, React Icons
 *   **UI/UX**: SweetAlert2 (alert), Masonry Layout
+*   **Mobile**: Capacitor (Android, iOS)
 
 ### Backend
 *   **Firebase**:
@@ -107,5 +109,8 @@ AdvanceKeep/
 ├── index.html               # HTML 진입점
 ├── package.json             # 프로젝트 의존성 및 스크립트 정보
 ├── firebase.json            # Firebase Hosting 및 Firestore 설정
-└── vite.config.js           # Vite 빌드 도구 설정
+├── vite.config.js           # Vite 빌드 도구 설정
+├── capacitor.config.json    # Capacitor 모바일 앱 설정
+├── android/                 # Android Studio 프로젝트
+└── ios/                     # Xcode 프로젝트 (iOS)
 ```
