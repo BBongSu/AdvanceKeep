@@ -1,8 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { FiX, FiDownload, FiCheck, FiHardDrive } from 'react-icons/fi';
+import { FiX, FiDownload, FiCheck } from 'react-icons/fi';
 import { exportBackupData } from '../../../services/backupService';
 import { useAuth } from '../../../hooks/useAuth';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
 
 const BackupModal = ({ onClose }) => {
     const { user } = useAuth();
@@ -30,18 +33,47 @@ const BackupModal = ({ onClose }) => {
             // 헬퍼: 레거시 다운로드 방식 (Fallback)
             // Fix: 모바일(삼성인터넷 등)에서 Blob URL 사용 시 0바이트 저장 문제 해결을 위해 Data URI 방식 사용
             const triggerLegacyDownload = () => {
-                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(jsonString);
-
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
                 const link = document.createElement("a");
-                link.href = dataUri;
+                link.href = url;
                 link.download = filename;
-
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                URL.revokeObjectURL(url);
 
                 setStep('SUCCESS');
             };
+
+            // 네이티브 모바일 환경 (Capacitor)
+            if (Capacitor.isNativePlatform()) {
+                try {
+                    // 1. 캐시 디렉토리에 임시 파일 쓰기
+                    const writeFileResult = await Filesystem.writeFile({
+                        path: filename,
+                        data: jsonString,
+                        directory: Directory.Cache, // 공유를 위해 캐시 폴더 사용
+                        encoding: Encoding.UTF8,
+                    });
+
+                    // 2. 파일 공유 실행 (사용자가 앱/위치 선택 가능)
+                    await Share.share({
+                        title: '백업 파일 저장',
+                        text: 'AdvanceKeep 백업 파일을 저장할 위치를 선택하세요.',
+                        url: writeFileResult.uri,
+                        dialogTitle: '백업 파일 저장 (내 파일 선택)',
+                    });
+
+                    setStep('SUCCESS');
+                    return;
+                } catch (nativeErr) {
+                    console.error("네이티브 공유 실패", nativeErr);
+                    // 실패 시 레거시 다운로드 방식으로 폴백
+                    triggerLegacyDownload();
+                    return;
+                }
+            }
 
             // Modern API: File System Access API (Chrome, Edge, Opera)
             // 주의: 모바일 브라우저(삼성 인터넷 등)에서 API는 존재하지만 권한 문제로 실패할 수 있음.

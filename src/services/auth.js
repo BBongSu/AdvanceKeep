@@ -6,8 +6,11 @@ import {
   updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithCredential,
 } from 'firebase/auth';
 import { doc, setDoc, collection, query, where, getDocs, getDoc } from 'firebase/firestore';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+import { Capacitor } from '@capacitor/core';
 
 /**
  * Firebase 사용자 객체를 앱에서 사용하는 형태로 변환
@@ -140,13 +143,29 @@ export const findEmailByName = async (name) => {
  */
 export const loginWithGoogle = async () => {
   try {
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({
-      prompt: 'select_account'
-    });
+    let user;
 
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
+    if (Capacitor.isNativePlatform()) {
+      // 네이티브 앱 로그인 (Capacitor)
+      // 크래시 방지를 위해 초기화 명시적 호출
+      await GoogleAuth.initialize({
+        clientId: '246582604160-30o3v97op0ti7ko79e0dli1sfrukv6uo.apps.googleusercontent.com',
+        scopes: ['profile', 'email'],
+        grantOfflineAccess: true,
+      });
+
+      const googleUser = await GoogleAuth.signIn();
+      // 구글 ID 토큰으로 파이어베이스 인증 정보 생성
+      const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
+      // 생성된 인증 정보로 파이어베이스 로그인 수행
+      const result = await signInWithCredential(auth, credential);
+      user = result.user;
+    } else {
+      // 웹 로그인 (팝업 방식)
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      user = result.user;
+    }
 
     // Firestore에 사용자 정보가 있는지 확인
     const userDocRef = doc(db, 'users', user.uid);

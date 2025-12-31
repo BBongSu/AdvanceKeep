@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "246582604160",
+    "project_id": "advancekeep-1e051",
+    "storage_bucket": "advancekeep-1e051.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:246582604160:android:3d51d012be51caf2d45165",
+        "android_client_info": {
+          "package_name": "com.advancekeep.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "246582604160-30o3v97op0ti7ko79e0dli1sfrukv6uo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBQS1-uEIpna8Ki-auL5HL9lacROatvqA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "246582604160-30o3v97op0ti7ko79e0dli1sfrukv6uo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
