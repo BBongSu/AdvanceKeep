@@ -43,8 +43,8 @@ const Header = ({ toggleSidebar, searchQuery, onSearchChange, isDarkMode, onTogg
         >
           <FiMenu size={24} />
         </button>
-        <div className="brand-mark" aria-hidden="true">
-          <FiFileText size={20} />
+        <div className="brand-mark" aria-hidden="true" style={{ background: 'none', boxShadow: 'none' }}>
+          <img src="/favicon.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
         <h1 className="header-title">AdvanceKeep</h1>
       </div>
