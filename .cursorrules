@@ -1,0 +1,8 @@
+# General Rules
+- Always communicate in Korean (한국어).
+- Write all code comments in Korean (한국어).
+- When explaining code or logic, use Korean (한국어).
+
+# Code Style
+- Use clear and descriptive variable names.
+- Prefer functional components for React.
