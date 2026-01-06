@@ -3,7 +3,7 @@ import { FiImage, FiPlus, FiX, FiLoader, FiDroplet, FiTag, FiCheckSquare } from 
 import { useImageUpload } from '../../../hooks/useImageUpload';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
-import LabelPicker from './LabelPicker'; // Import LabelPicker
+import LabelPicker from './LabelPicker';
 import NoteLabels from './NoteLabels';
 import ChecklistInputItem from './ChecklistInputItem';
 import ColorPicker from './ColorPicker';
@@ -44,7 +44,6 @@ function NoteForm({ onAdd, addingNote, defaultLabelId }) {
       setMode('text');
     }
 
-    // Auto-select label if provided from props (e.g., from /label/:labelId)
     if (defaultLabelId) {
       setSelectedLabelIds([defaultLabelId]);
     } else {
@@ -91,7 +90,6 @@ function NoteForm({ onAdd, addingNote, defaultLabelId }) {
       newItems.splice(index + 1, 0, newItem);
       setChecklistItems(newItems);
 
-      // Focus next item logic would go here ideally
       setTimeout(() => {
         const inputs = document.querySelectorAll('.checklist-input');
         if (inputs[index + 1]) inputs[index + 1].focus();
@@ -129,7 +127,6 @@ function NoteForm({ onAdd, addingNote, defaultLabelId }) {
   const onSubmit = (e) => {
     e.preventDefault();
 
-    // Validate based on mode
     let isEmpty = false;
     if (mode === 'text') {
       isEmpty = !title.trim() && !text.trim() && selectedImages.length === 0;
@@ -145,21 +142,19 @@ function NoteForm({ onAdd, addingNote, defaultLabelId }) {
       text: mode === 'text' ? text : null,
       images: selectedImages,
       color,
-      labels: selectedLabelIds, // Save label IDs
+      labels: selectedLabelIds,
       type: mode === 'checklist' ? 'checklist' : 'text',
       items: mode === 'checklist' ? checklistItems.filter(item => item.text.trim()) : null,
     };
 
     setTitle('');
     setText('');
-    // Reset to default depending on page, but user can toggle back
     setMode(isTodoPage ? 'checklist' : 'text');
     setChecklistItems([{ id: uuidv4(), text: '', checked: false }]);
     clearImages();
     setColor('');
     setShowColorPicker(false);
     setShowLabelPicker(false);
-    // Maintain default label if present
     setSelectedLabelIds(defaultLabelId ? [defaultLabelId] : []);
 
     onAdd(noteData);

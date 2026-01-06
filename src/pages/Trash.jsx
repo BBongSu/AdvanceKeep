@@ -9,7 +9,6 @@ function Trash() {
     const { restoreNote, deleteForever, notes, loading } = useNotes();
     const { searchQuery, sortOrder, viewMode } = useOutletContext();
 
-    // Filter notes that are in trash and sort
     const trashedNotes = notes.filter(note => note.inTrash);
     const filteredNotes = useSearch(trashedNotes, searchQuery);
 

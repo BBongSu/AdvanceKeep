@@ -7,8 +7,8 @@ import { MENU_ITEMS } from '../../constants';
 function Layout({ isDarkMode, toggleDarkMode, searchQuery, setSearchQuery }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeMenu, setActiveMenu] = useState(MENU_ITEMS.NOTES);
-    const [viewMode, setViewMode] = useState('card'); // 'card' or 'list'
-    const [sortOrder, setSortOrder] = useState('latest'); // 'latest' or 'oldest'
+    const [viewMode, setViewMode] = useState('card');
+    const [sortOrder, setSortOrder] = useState('latest');
 
     const toggleSidebar = useCallback(() => {
         setSidebarOpen((prev) => !prev);
