@@ -1,18 +1,38 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // [개발 모드] 로그인한 사용자라면 누구나 모든 문서 읽기/쓰기 가능
-    // 주의: 실제 배포 시에는 반드시 소유자 기반 권한으로 복구해야 합니다.
+    
+    // [사용자 프로필]
+    // 자신의 프로필만 읽기/쓰기 가능
     match /users/{userId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
+    // [메모]
+    // 1. 읽기: 소유자(userId) 이거나 공유받은 사람(sharedWith에 포함)
+    // 2. 쓰기(수정/삭제): 소유자 또는 공유받은 사람
+    // 3. 생성: 인증된 사용자
     match /notes/{noteId} {
-      allow read, write, create, delete: if request.auth != null;
+      allow create: if request.auth != null;
+      
+      allow read: if request.auth != null && (
+        resource.data.userId == request.auth.uid || 
+        request.auth.uid in resource.data.sharedWith
+      );
+      
+      allow update: if request.auth != null && (
+        resource.data.userId == request.auth.uid || 
+        request.auth.uid in resource.data.sharedWith
+      );
+      
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
+    // [라벨]
+    // 자신의 라벨만 읽기/쓰기 가능
     match /labels/{labelId} {
-      allow read, write, create, delete: if request.auth != null;
+      allow create: if request.auth != null;
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
   }
 }
